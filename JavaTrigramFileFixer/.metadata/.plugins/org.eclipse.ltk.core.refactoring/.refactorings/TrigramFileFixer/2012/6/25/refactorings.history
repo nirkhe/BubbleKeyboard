@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;other&apos; in &apos;TrigramData.equals(...)&apos; to &apos;arg0&apos;&#x0D;&#x0A;- Original project: &apos;TrigramFileFixer&apos;&#x0D;&#x0A;- Original element: &apos;TrigramData.equals(Object).other&apos;&#x0D;&#x0A;- Renamed element: &apos;other&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;other&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{TrigramData.java[TrigramData~equals~QObject;@other!248!259!255!259!QObject;!0!true" name="arg0" references="true" stamp="1339903053056" version="1.0"/>
+</session>

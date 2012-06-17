@@ -1,0 +1,16 @@
+
+public class Trigram
+{
+	public Trigram(TrigramData first, TrigramData second, TrigramData third, int frequency)
+	{
+		this.first = first;
+		this.second = second;
+		this.third = third;
+		this.frequency = frequency;
+		
+	}
+	
+	public TrigramData first, second, third;
+	public int frequency;
+	
+}

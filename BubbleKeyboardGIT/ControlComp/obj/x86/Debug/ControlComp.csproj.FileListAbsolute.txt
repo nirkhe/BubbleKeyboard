@@ -116,3 +116,7 @@ C:\Users\Chinmay\Dropbox\kinect\BubbleKeyboardTakeFour\ControlComp\obj\x86\Debug
 C:\Users\Chinmay\Dropbox\kinect\BubbleKeyboardTakeFour\ControlComp\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\Chinmay\Dropbox\kinect\BubbleKeyboardTakeFour\ControlComp\bin\Debug\EdgeWrite.dll
 C:\Users\Chinmay\Dropbox\kinect\BubbleKeyboardTakeFour\ControlComp\bin\Debug\WobbrockLib.dll
+C:\Users\Chinmay\BubbleKeyboard\BubbleKeyboardGIT\ControlComp\obj\x86\Debug\Interop.SpeechLib.dll
+C:\Users\Chinmay\BubbleKeyboard\BubbleKeyboardGIT\ControlComp\obj\x86\Debug\ControlComp.csproj.ResolveComReference.cache
+C:\Users\Chinmay\BubbleKeyboard\BubbleKeyboardGIT\ControlComp\obj\x86\Debug\ControlComp.exe
+C:\Users\Chinmay\BubbleKeyboard\BubbleKeyboardGIT\ControlComp\obj\x86\Debug\ControlComp.pdb
