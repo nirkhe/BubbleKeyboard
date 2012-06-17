@@ -30,6 +30,8 @@ namespace PointAndClick
             
         }
 
+        DateTime StartTime;
+
         MouseMonitor monitor = new MouseMonitor(0.70f);
         GuestureTracker tracker = new GuestureTracker(15, 0.05f, 0.05f, 0.2f);
         SkeletonData trackedSkeleton;
@@ -54,7 +56,7 @@ namespace PointAndClick
             nui.SkeletonFrameReady +=new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
             Process.Start("C:/Windows/System32/osk.exe");
-
+            StartTime = DateTime.Now;
         }
 
         void nui_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
