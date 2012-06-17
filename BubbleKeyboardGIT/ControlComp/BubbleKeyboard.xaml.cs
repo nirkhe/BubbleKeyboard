@@ -40,6 +40,9 @@ namespace ControlCompWithBubbleKeyboard
 
         private Stack<string> WordStack;
 
+        private DateTime StartTime;
+        private List<string> PositionData;
+
         private int[] RADIUS = { 150, 250 };
         private int[] BUBBLERADIUS = { 48, 24 };
 
@@ -73,8 +76,23 @@ namespace ControlCompWithBubbleKeyboard
             ConstructLetterLayout(Brushes.LightYellow);
 
             DistanceFileWriter = ConstructFileStream("C:/users/chinmay/dropbox/kinect/BubbleKeyboardTakeFour/", "distanceFiles", DateTime.Now.ToString() + "_distancechars");
+            StartTime = DateTime.Now;
+            PositionData = new List<string>();
+
+            Write("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n");
+            Write("<DistanceMovementTracker version=\"1.0\">");
 
             this.Show();
+        }
+
+        private void Write(String s)
+        {
+            List<byte> bytes = new List<byte>();
+            foreach (byte b in s)
+            {
+                bytes.Add(b);
+            }
+            DistanceFileWriter.Write(bytes.ToArray(), 0, bytes.Count);
         }
 
         private bool ReturnedToCenter = false;
@@ -123,6 +141,14 @@ namespace ControlCompWithBubbleKeyboard
                 Point SelectionHandPosition = new Point((SelectionHandJointScaled.Position.X), (SelectionHandJointScaled.Position.Y));
 
                 SetCursorPos((int)(MotionHandPosition.X), (int)(MotionHandPosition.Y));
+
+                PositionData.Add("<entry motionhand_x=\"" + MotionHandPosition.X +
+                    "\" motionhand_y=\"" + MotionHandPosition.Y +
+                    "\" selectionhand_x=\"" + SelectionHandPosition.X +
+                    "\" selectionhand_y=\"" + SelectionHandPosition.Y +
+                    "\" timestamp=\"" + DateTime.Now.ToString() +
+                    "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
+                    "\" />");
 
                 if (SelectionHandLast == null)
                 {
@@ -233,13 +259,15 @@ namespace ControlCompWithBubbleKeyboard
                                 ConstructLetterLayout(Brushes.LightYellow);
                                 SendKeys.SendWait(c.ToString().ToLowerInvariant());
                                 CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
-                                string s = (DateTime.Now.ToString() + "&" + c.ToString() + "&" + SelectionHandDistance + "&" + MotionHandDistance);
-                                List<byte> bytes = new List<byte>();
-                                foreach (byte b in s)
+
+                                Write("\t<print char=\"" + c + "\">");
+                                foreach (string s in PositionData)
                                 {
-                                    bytes.Add(b);
+                                    Write("\t\t" + s);
                                 }
-                                DistanceFileWriter.Write(bytes.ToArray(), 0, bytes.Count);
+                                PositionData = new List<string>();
+                                Write("\t</print>");
+
                                 SelectionHandDistance = MotionHandDistance = 0.0;
 
                                 if (CurrentNode.HasChild('!') != null)
