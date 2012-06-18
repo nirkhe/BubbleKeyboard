@@ -214,7 +214,7 @@ namespace ControlCompWithBubbleKeyboard
                         CenterBubble_Label.Content = "";
                     }
 
-                }
+                } 
                 // We can make changes to the layout
                 if (ReturnedToCenter)
                 {
