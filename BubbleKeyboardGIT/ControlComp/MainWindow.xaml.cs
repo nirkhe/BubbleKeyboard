@@ -43,11 +43,12 @@ namespace ControlCompWithBubbleKeyboard
             nui.VideoStream.Open(ImageStreamType.Video, 2, ImageResolution.Resolution640x480, ImageType.Color);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
-            nui.NuiCamera.ElevationAngle = -5;
+            nui.NuiCamera.ElevationAngle = 1;
+
+            BubbleKeyboard = new BubbleKeyboard(nui.NuiCamera.ElevationAngle, initialNode, Trigram);
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
             //keyboard = new KinectKeyboard(nui.NuiCamera.ElevationAngle,initialNode);
-            BubbleKeyboard = new BubbleKeyboard(nui.NuiCamera.ElevationAngle, initialNode, Trigram);
 
             nui.SkeletonEngine.TransformSmooth = true;
             TransformSmoothParameters parameters = new TransformSmoothParameters();
@@ -66,6 +67,7 @@ namespace ControlCompWithBubbleKeyboard
         {
             loadDictionary();
             loadTrigram();
+            
             InitializeComponent();
 
         }
@@ -80,7 +82,7 @@ namespace ControlCompWithBubbleKeyboard
                 string s = "";
                 while ((s = sr.ReadLine()) != null)
                 {
-                    s = s.ToUpperInvariant();
+                    s = s.ToLowerInvariant();
                     string[] split = s.Split(' ');
                     if (split.Length == 2)
                     {
@@ -164,7 +166,6 @@ namespace ControlCompWithBubbleKeyboard
             if (trackedSkeleton != null)
             {
                 // keyboard.recieveAndSetSkeletons(allSkeletons);
-                //BubbleKeyboard.InitializeComponent();
                 BubbleKeyboard.RecieveAndSetSkeletons(allSkeletons);
 
             }

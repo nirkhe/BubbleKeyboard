@@ -75,7 +75,7 @@ namespace ControlCompWithBubbleKeyboard
             PreviousCharacterLocation = new List<WordTreeNode>();
             ConstructLetterLayout(Brushes.LightYellow);
 
-            DistanceFileWriter = ConstructFileStream("C:/users/chinmay/dropbox/kinect/BubbleKeyboardTakeFour/", "distanceFiles", DateTime.Now.ToString() + "_distancechars");
+            //DistanceFileWriter = ConstructFileStream("C:/users/chinmay/dropbox/kinect/BubbleKeyboardTakeFour/", "distanceFiles", DateTime.Now.ToString() + "_distancechars");
             StartTime = DateTime.Now;
             PositionData = new List<string>();
 
@@ -165,7 +165,7 @@ namespace ControlCompWithBubbleKeyboard
                 }
                 else
                 {
-                    SelectionHandDistance += Point.Subtract(MotionHandLast, MotionHandPosition).Length;
+                    MotionHandDistance += Point.Subtract(MotionHandLast, MotionHandPosition).Length;
                     MotionHandLast = MotionHandPosition;
                 }
 
@@ -268,7 +268,8 @@ namespace ControlCompWithBubbleKeyboard
                                 PositionData = new List<string>();
                                 Write("\t</print>");
 
-                                SelectionHandDistance = MotionHandDistance = 0.0;
+                                SelectionHandDistance = 0.0;
+                                MotionHandDistance = 0.0;
 
                                 if (CurrentNode.HasChild('!') != null)
                                 {
