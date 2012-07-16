@@ -20,14 +20,14 @@ using System.Diagnostics;
 
 namespace Keyboard_v5
 {
-    public class Guesture
+    public class Gesture
     {
         public double _magnitude;
         DateTime _timestamp;
-        GuestureID _id;
+        GestureID _id;
         Joint _guestureSource;
 
-        public Guesture(DateTime timestamp, double magnitude, GuestureID id, Joint guestureSource)
+        public Gesture(DateTime timestamp, double magnitude, GestureID id, Joint guestureSource)
         {
             this._timestamp = timestamp;
             this._magnitude = magnitude;
@@ -45,7 +45,7 @@ namespace Keyboard_v5
             get { return _timestamp; }
         }
 
-        public GuestureID id
+        public GestureID id
         {
             get { return _id; }
         }

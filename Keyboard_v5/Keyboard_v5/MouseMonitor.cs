@@ -33,9 +33,9 @@ namespace Keyboard_v5
 
         }
 
-        public void checkClick(Guesture g)
+        public void checkClick(Gesture g)
         {
-            if (g != null && g.id == GuestureID.Push)
+            if (g != null && g.id == GestureID.Push)
             {
                 Console.WriteLine("Registered a push");
                 //Joint lefth = new Joint().ScaleTo(1600, 1200, 0.75f, 0.75f);
@@ -48,7 +48,7 @@ namespace Keyboard_v5
                 LeftMouseUp();
             }
 
-            if (g != null && g.id == GuestureID.Pull)
+            if (g != null && g.id == GestureID.Pull)
             {
                 Console.WriteLine("Registered a pull");
                 LeftMouseUp();
@@ -56,9 +56,9 @@ namespace Keyboard_v5
 
         }
 
-        public void checkClick2(Guesture g)
+        public void checkClick2(Gesture g)
         {
-            if (g != null && g.id == GuestureID.SwipeRight)
+            if (g != null && g.id == GestureID.SwipeRight)
             {
                 //Console.WriteLine("Registered a swipe");
                 //Joint lefth = new Joint().ScaleTo(1600, 1200, 0.75f, 0.75f);
@@ -70,14 +70,14 @@ namespace Keyboard_v5
                 RightMouseDown();
                 RightMouseUp();
             }
-            else if (g != null && g.id == GuestureID.SwipeLeft)
+            else if (g != null && g.id == GestureID.SwipeLeft)
             {
                 LeftMouseDown();
                 LeftMouseUp();
             }
-            else if (g != null && g.id == GuestureID.SwipeUp)
+            else if (g != null && g.id == GestureID.SwipeUp)
                 LeftMouseDown();
-            else if (g != null && g.id == GuestureID.SwipeDown)
+            else if (g != null && g.id == GestureID.SwipeDown)
                 LeftMouseUp();
 
         }

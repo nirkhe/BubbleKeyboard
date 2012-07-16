@@ -26,8 +26,6 @@ namespace ControlCompWithBubbleKeyboard
     /// </summary>
     public partial class MainWindow : Window
     {
-        MouseMonitor monitor = new MouseMonitor(0.70f);
-        GuestureTracker tracker = new GuestureTracker(15, 0.05f, 0.05f, 0.2f);
         SkeletonData trackedSkeleton;
 
         Runtime nui;

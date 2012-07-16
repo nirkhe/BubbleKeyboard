@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Keyboard_v5
 {
-    public enum GuestureID
+    public enum GestureID
     {
         Invalid, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Push, Pull, Still, Planar
     }
