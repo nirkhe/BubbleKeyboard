@@ -102,15 +102,6 @@ namespace Keyboard_v5
                                 velocityVector.W = positions[k].GetLast().W - positions[k].GetFirst().W;
 
                                 guesture = guessGuesture(velocityVector, trackJoint, xThreshold, yThreshold, zThreshold);
-#if DEBUG2
-                                if (guesture.id != previousGuesture)
-                                {
-                                    Console.Out.WriteLine(guesture.id.ToString());
-                                    if (guesture.id != GuestureID.Push)
-                                    {
-                                    }
-                                }
-#endif
                                 if (guesture.id == previousGuesture)
                                 {
                                     lockout = true;
@@ -121,21 +112,6 @@ namespace Keyboard_v5
                                     previousGuesture = guesture.id;
                                 }
                             }
-
-#if DEBUG
-                            if (k.ID == JointID.HandLeft && !positions[k].GetFirst().X.Equals(0))
-                            {
-                                float x = positions[k].GetFirst().X;
-                                float y = positions[k].GetLast().X;
-                                float f = positions[k].GetLast().X - positions[k].GetFirst().X;
-                                Debug.Print((positions[k].GetLast().X - positions[k].GetFirst().X).ToString());
-                                if (Math.Abs(f) > 0.1)
-                                {
-                                    throw new FieldAccessException();
-                                }
-                            }
-#endif
-
 
                             break;
                         }
@@ -299,7 +275,7 @@ namespace Keyboard_v5
                 return new Gesture(DateTime.Now, 0, GestureID.Invalid, source);
             }
 
-            else if (Math.Abs(v.X) + Math.Abs(v.Y) <= 0.05)// Math.Abs(v.Z - ((v.X + v.Y) )) <= 0.1 )
+            else if (Math.Abs(v.X) + Math.Abs(v.Y) <= 0.1)// Math.Abs(v.Z - ((v.X + v.Y) )) <= 0.1 )
             {
                 return new Gesture(DateTime.Now, max, GestureID.Still, source);
             }

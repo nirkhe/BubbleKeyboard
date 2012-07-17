@@ -48,12 +48,13 @@ namespace Keyboard_v5
 
         public int Search(string x)
         {
-            for (int i = 0; i < MainNodes.Count; i++)
-            {
-                if (MainNodes[i].text == x)
-                    return i;
-            }
-            return -1;
+            //for (int i = 0; i < MainNodes.Count; i++)
+            //{
+            //    if (MainNodes[i].text.Equals(x))
+            //        return i;
+            //}
+            //return -1;
+            return Search(x, 0, MainNodes.Count);
         }
 
         public int Search(string x, int StartIndex, int EndIndex)
@@ -84,7 +85,7 @@ namespace Keyboard_v5
         }
     }
 
-    class TrigramMainNode
+    class TrigramMainNode: IComparable
     {
         public string text;
         public long frequency;
@@ -119,12 +120,13 @@ namespace Keyboard_v5
 
         public int Search(int index)
         {
-            for (int i = 0; i < SecondaryNodeChildren.Count; i++)
-            {
-                if (SecondaryNodeChildren[i].index == index)
-                    return i;
-            }
-            return -1;
+            //for (int i = 0; i < SecondaryNodeChildren.Count; i++)
+            //{
+            //    if (SecondaryNodeChildren[i].index == index)
+            //        return i;
+            //}
+            //return -1;
+            return Search(index, 0, SecondaryNodeChildren.Count);
         }
 
         public int Search(int index, int StartIndex, int EndIndex)
@@ -154,9 +156,19 @@ namespace Keyboard_v5
                 return -1;
             }
         }
+
+        public int CompareTo(Object arg0)
+        {
+            if (arg0.GetType() == this.GetType())
+            {
+                TrigramMainNode other = (TrigramMainNode)(arg0);
+                return this.text.CompareTo(other.text);
+            }
+            return 1;
+        }
     }
 
-    class TrigramSecondaryNode
+    class TrigramSecondaryNode : IComparable
     {
         public int index;
         public List<TrigramTrinaryNode> TrinaryNodeChildren;
@@ -165,6 +177,16 @@ namespace Keyboard_v5
         {
             TrinaryNodeChildren = new List<TrigramTrinaryNode>();
             this.index = index;
+        }
+
+        public int CompareTo(Object arg0)
+        {
+            if (arg0.GetType() == this.GetType())
+            {
+                TrigramSecondaryNode other = (TrigramSecondaryNode)(arg0);
+                return this.index.CompareTo(other.index);
+            }
+            return 1;
         }
     }
 
@@ -279,7 +301,7 @@ namespace Keyboard_v5
             return null;
         }
 
-        public bool Equals(Object arg0)
+        public override bool Equals(Object arg0)
         {
             if (arg0.GetType() == this.GetType())
             {

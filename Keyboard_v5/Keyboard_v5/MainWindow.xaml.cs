@@ -28,6 +28,7 @@ namespace Keyboard_v5
     public partial class Keyboard : Window
     {
         SkeletonData TrackedSkeleton;
+        Bubble selected;
 
         Runtime nui;
         ImageFrame currentVideoFrame = new ImageFrame();
@@ -43,7 +44,6 @@ namespace Keyboard_v5
         JointID SelectionHand = JointID.HandRight;
         JointID MotionHand = JointID.HandLeft;
 
-        FileStream DistanceFileWriter;
         double SelectionHandDistance = 0.0, MotionHandDistance = 0.0;
 
         Point MotionHandLast, SelectionHandLast;
@@ -55,10 +55,10 @@ namespace Keyboard_v5
         [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
         public static extern bool SetCursorPos(int X, int Y);
 
-        bool ReturnedToCenter = false;
+        bool ReturnedToCenter = false, EnterCenterFirst = false;
 
         DateTime StartTime;
-        Queue<string> PositionData;
+        Queue<string> PositionData, WordData, SentenceData, TextData;
 
         List<WordTreeNode> PreviousCharacterLocation;
 
@@ -68,6 +68,16 @@ namespace Keyboard_v5
         {
             loadDictionary();
             loadTrigram();
+
+            StartTime = DateTime.Now;
+            PreviousCharacterLocation = new List<WordTreeNode>();
+            WordStack = new Stack<string>();
+            CurrentNode = InitialNode;
+            PositionData = new Queue<string>();
+            WordData = new Queue<string>();
+            SentenceData = new Queue<string>();
+            TextData = new Queue<string>();
+
             InitializeComponent();
         }
 
@@ -75,11 +85,9 @@ namespace Keyboard_v5
         {
             nui = new Runtime();
             nui.Initialize(RuntimeOptions.UseColor | RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking);
-            nui.VideoFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_VideoFrameReady);
-            nui.VideoStream.Open(ImageStreamType.Video, 2, ImageResolution.Resolution640x480, ImageType.Color);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
-            nui.NuiCamera.ElevationAngle = 1;
+            nui.NuiCamera.ElevationAngle = 15;
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
@@ -129,7 +137,7 @@ namespace Keyboard_v5
                 string s = "";
                 while ((s = sr.ReadLine()) != null)
                 {
-                    s = s.ToLowerInvariant();
+                    s = s.ToUpperInvariant();
                     string[] split = s.Split(' ');
                     if (split.Length == 2)
                     {
@@ -226,7 +234,7 @@ namespace Keyboard_v5
                 SetCursorPos((int)(MotionHandPosition.X), (int)(MotionHandPosition.Y));
 
                 //Added data position to a queue of positions that will be loaded for each letter
-                PositionData.Enqueue("<entry motionhand_x=\"" + MotionHandPosition.X +
+                PositionData.Enqueue("\r\n\t\t\t\t<entry motionhand_x=\"" + MotionHandPosition.X +
                     "\" motionhand_y=\"" + MotionHandPosition.Y +
                     "\" selectionhand_x=\"" + SelectionHandPosition.X +
                     "\" selectionhand_y=\"" + SelectionHandPosition.Y +
@@ -263,6 +271,11 @@ namespace Keyboard_v5
                 {
                     ReturnedToCenter = true;
 
+                    if (!EnterCenterFirst)
+                    {
+                        PositionData = new Queue<string>();
+                        EnterCenterFirst = true;
+                    }
                     if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeLeft)
                     {
                         SendKeys.SendWait("{Backspace}");
@@ -279,7 +292,56 @@ namespace Keyboard_v5
                         ConstructLetterLayout(Brushes.LightYellow);
                         SendKeys.SendWait(" ");
                         WordStack.Push(CenterBubble_Label.Content.ToString());
+                        string word = "\r\n\t\t<word text=\"" + WordStack.Peek() + "\">";
+                        while (WordData.Count > 0)
+                        {
+                            word += WordData.Dequeue();
+                        }
+                        word += "\r\n\t\t</word>";
+                        SentenceData.Enqueue(word);
+                        WordData = new Queue<string>();
                         CenterBubble_Label.Content = "";
+                    }
+
+                    if (selected != null)
+                    {
+                        ReturnedToCenter = false;
+                        char c = selected.GetCharacter();
+                        RemoveLayout();
+                        WordTreeNode NextNode = CurrentNode.HasChild(c);
+                        if (NextNode == null)
+                        {
+                            NextNode = new WordTreeNode(c, false);
+                            NextNode.parent = CurrentNode;
+                        }
+                        CurrentNode = NextNode;
+                        ConstructLetterLayout(Brushes.LightYellow);
+                        SendKeys.SendWait(c.ToString().ToLowerInvariant());
+                        CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
+                        string letter = "";
+                        string InnerRing = (selected.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
+                        letter += ("\r\n\t\t\t<print char=\"" + c + "\" selection_hand_distance=\"" + SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance +
+                            "\" InnerRing=\"" + InnerRing + "\"");
+                        while (PositionData.Count > 0)
+                        {
+                            letter += PositionData.Dequeue();
+                        }
+                        PositionData = new Queue<string>();
+                        letter += ("\r\n\t\t\t</print>");
+                        WordData.Enqueue(letter);
+                        SelectionHandDistance = 0.0;
+                        MotionHandDistance = 0.0;
+
+                        if (CurrentNode.HasChild('!') != null)
+                        {
+                            CenterBubble_Ellipse.Fill = Brushes.AntiqueWhite;
+                        }
+                        else
+                        {
+                            CenterBubble_Ellipse.Fill = Brushes.GreenYellow;
+                        }
+
+                        selected = null;
                     }
 
                 }
@@ -292,6 +354,15 @@ namespace Keyboard_v5
                         WordStack = new Stack<string>();
                         CenterBubble_Label.Content = "";
                         ReturnedToCenter = false;
+
+                        string sentence = "\r\n\t<sentence>";
+                        while (SentenceData.Count > 0)
+                        {
+                            sentence += SentenceData.Dequeue();
+                        }
+                        sentence += "\r\n\t\t</sentence>";
+                        TextData.Enqueue(sentence);
+                        SentenceData = new Queue<string>();
                     }
 
                     if (SwitchHandsButton.IsMouseOver)
@@ -304,48 +375,10 @@ namespace Keyboard_v5
 
                     if (MotionHandGesture.id == GestureID.Still)
                     {
-                        Bubble selected = null;
                         foreach (Bubble beta in Letters)
                         {
                             selected = beta.Ellipse.IsMouseOver ? beta : selected;
                             beta.SetColor(Brushes.LightYellow);
-                        }
-                        if (selected != null)
-                        {
-                            ReturnedToCenter = false;
-                            char c = selected.GetCharacter();
-                            RemoveLayout();
-                            WordTreeNode NextNode = CurrentNode.HasChild(c);
-                            if (NextNode == null)
-                            {
-                                NextNode = new WordTreeNode(c, false);
-                                NextNode.parent = CurrentNode;
-                            }
-                            CurrentNode = NextNode;
-                            ConstructLetterLayout(Brushes.LightYellow);
-                            SendKeys.SendWait(c.ToString().ToLowerInvariant());
-                            CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
-                            string InnerRing = (selected.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
-                            Write("\t<print char=\"" + c + "\" selection_hand_distance=\"" +  SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance + 
-                                "\" InnerRing=\"" + InnerRing + "\"");
-                            while (PositionData.Count > 0)
-                            {
-                                Write("\t\t" + PositionData.Dequeue());
-                            }
-                            PositionData = new Queue<string>();
-                            Write("\t</print>");
-
-                            SelectionHandDistance = 0.0;
-                            MotionHandDistance = 0.0;
-
-                            if (CurrentNode.HasChild('!') != null)
-                            {
-                                CenterBubble_Ellipse.Fill = Brushes.AntiqueWhite;
-                            }
-                            else
-                            {
-                                CenterBubble_Ellipse.Fill = Brushes.GreenYellow;
-                            }
                         }
                     }
                 }
@@ -472,7 +505,7 @@ namespace Keyboard_v5
                 int place = -1;
                 foreach (WordTreeNode a in PreviousCharacterLocation)
                 {
-                    if (wtn.character == a.character)
+                    if (wtn.character == a.character && Sticky.Content.Equals("Turn off Sticky"))
                     {
                         place = a.count;
                     }
@@ -573,12 +606,6 @@ namespace Keyboard_v5
             {
                 beta.RemoveFromParent();
             }
-        }
-
-        void nui_VideoFrameReady(object sender, ImageFrameReadyEventArgs e)
-        {
-            currentVideoFrame = e.ImageFrame;
-            //image2.Source = e.ImageFrame.ToBitmapSource();
         }
 
         void nui_DepthFrameReady(object sender, ImageFrameReadyEventArgs e)
@@ -734,15 +761,54 @@ namespace Keyboard_v5
             return System.IO.File.Create(newPath);
         }
 
-        private void Write(String s)
+        private void Write(String s, FileStream f)
         {
             List<byte> bytes = new List<byte>();
             foreach (byte b in s)
             {
                 bytes.Add(b);
             }
-            DistanceFileWriter.Write(bytes.ToArray(), 0, bytes.Count);
+            f.Write(bytes.ToArray(), 0, bytes.Count);
+        }
+
+        private void Publish_Data_Click(object sender, RoutedEventArgs e)
+        {
+            using (FileStream DistanceFileWriter = System.IO.File.OpenWrite(StartTime.Month + "-" + StartTime.Day + "-" + StartTime.Year + " " + StartTime.Hour + "-" + StartTime.Minute + " movementtrack.xml"))
+            {
+                Write(("<movement date=\"" + StartTime.Month + "-" + StartTime.Day + "-" + StartTime.Year + " " + StartTime.Hour + "-" + StartTime.Minute + "\">"), DistanceFileWriter);
+                while (TextData.Count > 0)
+                {
+                    Write(TextData.Dequeue(), DistanceFileWriter);
+                }
+                while (SentenceData.Count > 0)
+                {
+                    Write(SentenceData.Dequeue(), DistanceFileWriter);
+                }
+                while (WordData.Count > 0)
+                {
+                    Write(WordData.Dequeue(), DistanceFileWriter);
+                }
+                while (PositionData.Count > 0)
+                {
+                    Write(PositionData.Dequeue(), DistanceFileWriter);
+                }
+                Write("</movement>", DistanceFileWriter);
+                System.Windows.Application.Current.Shutdown();
+            }
+        }
+
+        private void Sticky_Click(object sender, RoutedEventArgs e)
+        {
+            if (Sticky.Content.Equals("Turn off Sticky"))
+            {
+                Sticky.Content = "Turn on Sticky";
+            }
+            else
+            {
+                Sticky.Content = "Turn off Sticky";
+            }
         }
 
     }
+
 }
