@@ -64,6 +64,8 @@ namespace Keyboard_v5
 
         Stack<string> WordStack;
 
+        DateTime BlueFlash;
+
         public Keyboard()
         {
             loadDictionary();
@@ -238,7 +240,6 @@ namespace Keyboard_v5
                     "\" motionhand_y=\"" + MotionHandPosition.Y +
                     "\" selectionhand_x=\"" + SelectionHandPosition.X +
                     "\" selectionhand_y=\"" + SelectionHandPosition.Y +
-                    "\" timestamp=\"" + DateTime.Now.ToString() +
                     "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
                     "\" />");
 
@@ -284,6 +285,12 @@ namespace Keyboard_v5
                             CenterBubble_Label.Content = CenterBubble_Label.Content.ToString().Substring(0, CenterBubble_Label.Content.ToString().Length - 1);
                             CurrentNode = (CurrentNode.parent != null ? CurrentNode.parent : CurrentNode);
                         }
+                        PositionData.Enqueue("\r\n\t\t\t\t<backspace motionhand_x=\"" + MotionHandPosition.X +
+                            "\" motionhand_y=\"" + MotionHandPosition.Y +
+                            "\" selectionhand_x=\"" + SelectionHandPosition.X +
+                            "\" selectionhand_y=\"" + SelectionHandPosition.Y +
+                            "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
+                            "\" />");
                     }
                     else if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.Push)
                     {
@@ -348,31 +355,6 @@ namespace Keyboard_v5
                 // We can make changes to the layout
                 if (ReturnedToCenter)
                 {
-                    if (Enter_Button.IsMouseOver)
-                    {
-                        SendKeys.SendWait("{Enter}");
-                        WordStack = new Stack<string>();
-                        CenterBubble_Label.Content = "";
-                        ReturnedToCenter = false;
-
-                        string sentence = "\r\n\t<sentence>";
-                        while (SentenceData.Count > 0)
-                        {
-                            sentence += SentenceData.Dequeue();
-                        }
-                        sentence += "\r\n\t\t</sentence>";
-                        TextData.Enqueue(sentence);
-                        SentenceData = new Queue<string>();
-                    }
-
-                    if (SwitchHandsButton.IsMouseOver)
-                    {
-                        JointID temporary = MotionHand;
-                        MotionHand = SelectionHand;
-                        SelectionHand = temporary;
-                        ReturnedToCenter = false;
-                    }
-
                     if (MotionHandGesture.id == GestureID.Still)
                     {
                         foreach (Bubble beta in Letters)
@@ -382,6 +364,12 @@ namespace Keyboard_v5
                         }
                     }
                 }
+
+                if (DateTime.Now.Subtract(BlueFlash).TotalMilliseconds < 500)
+                {
+                    CenterBubble_Ellipse.Fill = Brushes.LightBlue;
+                }
+
             }
         }
 
@@ -773,6 +761,7 @@ namespace Keyboard_v5
 
         private void Publish_Data_Click(object sender, RoutedEventArgs e)
         {
+            BlueFlash = DateTime.Now;
             using (FileStream DistanceFileWriter = System.IO.File.OpenWrite(StartTime.Month + "-" + StartTime.Day + "-" + StartTime.Year + " " + StartTime.Hour + "-" + StartTime.Minute + " movementtrack.xml"))
             {
                 Write(("<movement date=\"" + StartTime.Month + "-" + StartTime.Day + "-" + StartTime.Year + " " + StartTime.Hour + "-" + StartTime.Minute + "\">"), DistanceFileWriter);
@@ -807,6 +796,34 @@ namespace Keyboard_v5
             {
                 Sticky.Content = "Turn off Sticky";
             }
+            BlueFlash = DateTime.Now;
+        }
+
+        private void Enter_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SendKeys.SendWait("{Enter}");
+            WordStack = new Stack<string>();
+            CenterBubble_Label.Content = "";
+            ReturnedToCenter = false;
+
+            string sentence = "\r\n\t<sentence>";
+            while (SentenceData.Count > 0)
+            {
+                sentence += SentenceData.Dequeue();
+            }
+            sentence += "\r\n\t\t</sentence>";
+            TextData.Enqueue(sentence);
+            SentenceData = new Queue<string>();
+            BlueFlash = DateTime.Now;
+        }
+
+        private void SwitchHandsButton_Click(object sender, RoutedEventArgs e)
+        {
+            JointID temporary = MotionHand;
+            MotionHand = SelectionHand;
+            SelectionHand = temporary;
+            ReturnedToCenter = false;
+            BlueFlash = DateTime.Now;
         }
 
     }

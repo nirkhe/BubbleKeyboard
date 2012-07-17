@@ -67,7 +67,7 @@ namespace Keyboard_v5 {
         
         #line 9 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        internal System.Windows.Controls.TextBox produced;
+        internal System.Windows.Controls.Button SwitchHandsButton;
         
         #line default
         #line hidden
@@ -75,7 +75,7 @@ namespace Keyboard_v5 {
         
         #line 10 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        internal System.Windows.Controls.Button SwitchHandsButton;
+        internal System.Windows.Controls.Button Enter_Button;
         
         #line default
         #line hidden
@@ -83,7 +83,7 @@ namespace Keyboard_v5 {
         
         #line 11 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        internal System.Windows.Controls.Button Enter_Button;
+        internal System.Windows.Controls.Image Depth_Image;
         
         #line default
         #line hidden
@@ -91,21 +91,13 @@ namespace Keyboard_v5 {
         
         #line 12 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        internal System.Windows.Controls.Image Depth_Image;
-        
-        #line default
-        #line hidden
-        
-        
-        #line 13 "..\..\..\MainWindow.xaml"
-        [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Button Publish_Data;
         
         #line default
         #line hidden
         
         
-        #line 14 "..\..\..\MainWindow.xaml"
+        #line 13 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Button Sticky;
         
@@ -158,30 +150,39 @@ namespace Keyboard_v5 {
             this.CenterBubble_Ellipse = ((System.Windows.Shapes.Ellipse)(target));
             return;
             case 5:
-            this.produced = ((System.Windows.Controls.TextBox)(target));
+            this.SwitchHandsButton = ((System.Windows.Controls.Button)(target));
+            
+            #line 9 "..\..\..\MainWindow.xaml"
+            this.SwitchHandsButton.Click += new System.Windows.RoutedEventHandler(this.SwitchHandsButton_Click);
+            
+            #line default
+            #line hidden
             return;
             case 6:
-            this.SwitchHandsButton = ((System.Windows.Controls.Button)(target));
+            this.Enter_Button = ((System.Windows.Controls.Button)(target));
+            
+            #line 10 "..\..\..\MainWindow.xaml"
+            this.Enter_Button.Click += new System.Windows.RoutedEventHandler(this.Enter_Button_Click);
+            
+            #line default
+            #line hidden
             return;
             case 7:
-            this.Enter_Button = ((System.Windows.Controls.Button)(target));
-            return;
-            case 8:
             this.Depth_Image = ((System.Windows.Controls.Image)(target));
             return;
-            case 9:
+            case 8:
             this.Publish_Data = ((System.Windows.Controls.Button)(target));
             
-            #line 13 "..\..\..\MainWindow.xaml"
+            #line 12 "..\..\..\MainWindow.xaml"
             this.Publish_Data.Click += new System.Windows.RoutedEventHandler(this.Publish_Data_Click);
             
             #line default
             #line hidden
             return;
-            case 10:
+            case 9:
             this.Sticky = ((System.Windows.Controls.Button)(target));
             
-            #line 14 "..\..\..\MainWindow.xaml"
+            #line 13 "..\..\..\MainWindow.xaml"
             this.Sticky.Click += new System.Windows.RoutedEventHandler(this.Sticky_Click);
             
             #line default
