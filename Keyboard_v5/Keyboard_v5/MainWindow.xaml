@@ -11,6 +11,7 @@
             <Image Height="68" HorizontalAlignment="Left" Margin="12,12,0,0" Name="Depth_Image" Stretch="Fill" VerticalAlignment="Top" Width="129" Canvas.Left="620" Canvas.Top="-6" />
             <Button Canvas.Left="453" Canvas.Top="6" Content="Publish Data" Height="30" Name="Publish_Data" Width="122" Click="Publish_Data_Click" />
             <Button Canvas.Left="300" Canvas.Top="6" Content="Turn off Sticky" Height="30" Name="Sticky" Width="121" Click="Sticky_Click" />
+            <Ellipse Canvas.Left="318" Canvas.Top="131" Height="6" Name="Pointer_Ellipse" Stroke="Black" Width="6" Fill="Black" />
         </Canvas>
     </Grid>
 </Window>

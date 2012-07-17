@@ -215,7 +215,7 @@ namespace Keyboard_v5
                  //Setup the default colors of the bubbles
                 foreach (Bubble beta in Letters)
                 {
-                    if (beta.Ellipse.IsMouseOver)
+                    if (CircleOver(beta.Ellipse))
                     {
                         beta.SetColor(Brushes.LawnGreen);
                     }
@@ -240,7 +240,11 @@ namespace Keyboard_v5
                 Point SelectionHandPosition = new Point((SelectionHandJointScaled.Position.X), (SelectionHandJointScaled.Position.Y));
 
                 //Move Cursor
-                SetCursorPos((int)(MotionHandPosition.X), (int)(MotionHandPosition.Y));
+                //SetCursorPos((int)(MotionHandPosition.X), (int)(MotionHandPosition.Y));
+                Point destination_top_left = theCanvas.PointFromScreen(MotionHandPosition);
+                destination_top_left = Point.Add(destination_top_left, new System.Windows.Vector(Pointer_Ellipse.Width / -2, Pointer_Ellipse.Height / -2));
+                Canvas.SetTop(Pointer_Ellipse, destination_top_left.Y);
+                Canvas.SetLeft(Pointer_Ellipse, destination_top_left.X);
 
                 //Added data position to a queue of positions that will be loaded for each letter
                 PositionData.Enqueue("\r\n\t\t\t\t<entry motionhand_x=\"" + MotionHandPosition.X +
@@ -275,7 +279,7 @@ namespace Keyboard_v5
                 Gesture MotionHandGesture = keyboardGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[MotionHand], nui.NuiCamera.ElevationAngle);
                 Gesture SelectionHandGesture = regularGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
 
-                if (CenterBubble_Ellipse.IsMouseOver)
+                if (CircleOver(CenterBubble_Ellipse))
                 {
                     ReturnedToCenter = true;
 
@@ -366,7 +370,7 @@ namespace Keyboard_v5
                     {
                         foreach (Bubble beta in Letters)
                         {
-                            selected = beta.Ellipse.IsMouseOver ? beta : selected;
+                            selected = CircleOver(beta.Ellipse) ? beta : selected;
                             if (CurrentNode.HasChild(beta.Word()) != null)
                             {
                                 beta.SetColor(Brushes.Yellow);
@@ -848,6 +852,14 @@ namespace Keyboard_v5
             }
         }
 
+        private bool CircleOver(Ellipse e)
+        {
+            Point center_of_pointer = new Point(Canvas.GetLeft(Pointer_Ellipse) + Pointer_Ellipse.Width / 2,
+                Canvas.GetTop(Pointer_Ellipse) + Pointer_Ellipse.Height / 2);
+            Point center_of_element = new Point(Canvas.GetLeft(e) + e.Width / 2,
+                Canvas.GetTop(e) + e.Height / 2);
+            return (Point.Subtract(center_of_pointer, center_of_element).Length < e.Height / 2);
+        }
     }
 
 }
