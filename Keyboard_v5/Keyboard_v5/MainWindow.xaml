@@ -6,12 +6,11 @@
         <Canvas Height="800" HorizontalAlignment="Left" Margin="0,0,0,0" Name="theCanvas" VerticalAlignment="Top" Width="800" >
             <Label Content="" Height="200"  Width="200" Canvas.Left ="300" Canvas.Top="300" Name="CenterBubble_Label" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="24" />
             <Ellipse Height="200" Width="200" Canvas.Left ="300"  Canvas.Top ="300" Name="CenterBubble_Ellipse" Stroke="Black" Fill="GreenYellow" Opacity="0.5" />
-            <TextBox Canvas.Left="0" Canvas.Top="0" Height="50" Name="produced" Width="800" />
-            <Button Canvas.Left="0" Canvas.Top="56" Content="Switch Hand to Right" Height="30" Name="SwitchHandsButton" Width="778" />
-            <Button Canvas.Left="15" Canvas.Top="100" Content="Enter" Height="43" Name="Enter_Button" Width="109" />
-            <Image Height="51" HorizontalAlignment="Left" Margin="12,12,0,0" Name="Depth_Image" Stretch="Fill" VerticalAlignment="Top" Width="82" Canvas.Left="649" Canvas.Top="88" />
-            <Button Canvas.Left="661" Canvas.Top="160" Content="Publish Data" Height="24" Name="Publish_Data" Width="84" Click="Publish_Data_Click" />
-            <Button Canvas.Left="15" Canvas.Top="160" Content="Turn off Sticky" Height="24" Name="Sticky" Width="109" Click="Sticky_Click" />
+            <Button Canvas.Left="6" Canvas.Top="6" Content="Switch Hand to Right" Height="30" Name="SwitchHandsButton" Width="120" Click="SwitchHandsButton_Click" />
+            <Button Canvas.Left="154" Canvas.Top="6" Content="Enter" Height="30" Name="Enter_Button" Width="120" Click="Enter_Button_Click" />
+            <Image Height="68" HorizontalAlignment="Left" Margin="12,12,0,0" Name="Depth_Image" Stretch="Fill" VerticalAlignment="Top" Width="129" Canvas.Left="620" Canvas.Top="-6" />
+            <Button Canvas.Left="453" Canvas.Top="6" Content="Publish Data" Height="30" Name="Publish_Data" Width="122" Click="Publish_Data_Click" />
+            <Button Canvas.Left="300" Canvas.Top="6" Content="Turn off Sticky" Height="30" Name="Sticky" Width="121" Click="Sticky_Click" />
         </Canvas>
     </Grid>
 </Window>

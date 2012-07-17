@@ -89,7 +89,7 @@ namespace Keyboard_v5
             nui.Initialize(RuntimeOptions.UseColor | RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
-            nui.NuiCamera.ElevationAngle = 15;
+            nui.NuiCamera.ElevationAngle = 10;
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
@@ -102,7 +102,7 @@ namespace Keyboard_v5
             parameters.MaxDeviationRadius = 0.5f;
             nui.SkeletonEngine.SmoothParameters = parameters;
 
-            ConstructLetterLayout(Brushes.Yellow);
+            ConstructLetterLayout();
         }
 
         private void loadDictionary()
@@ -221,7 +221,14 @@ namespace Keyboard_v5
                     }
                     else
                     {
-                        beta.SetColor(Brushes.LightYellow);
+                        if (CurrentNode.HasChild(beta.Word()) != null)
+                        {
+                            beta.SetColor(Brushes.Yellow);
+                        }
+                        else
+                        {
+                            beta.SetColor(Brushes.LightYellow);
+                        }
                     }
                 }
                 Joint MotionHandJoint = (TrackedSkeleton.Joints[MotionHand]).ScaleTo(222, 1044);
@@ -296,7 +303,7 @@ namespace Keyboard_v5
                     {
                         RemoveLayout();
                         CurrentNode = InitialNode;
-                        ConstructLetterLayout(Brushes.LightYellow);
+                        ConstructLetterLayout();
                         SendKeys.SendWait(" ");
                         WordStack.Push(CenterBubble_Label.Content.ToString());
                         string word = "\r\n\t\t<word text=\"" + WordStack.Peek() + "\">";
@@ -322,7 +329,7 @@ namespace Keyboard_v5
                             NextNode.parent = CurrentNode;
                         }
                         CurrentNode = NextNode;
-                        ConstructLetterLayout(Brushes.LightYellow);
+                        ConstructLetterLayout();
                         SendKeys.SendWait(c.ToString().ToLowerInvariant());
                         CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
                         string letter = "";
@@ -360,7 +367,14 @@ namespace Keyboard_v5
                         foreach (Bubble beta in Letters)
                         {
                             selected = beta.Ellipse.IsMouseOver ? beta : selected;
-                            beta.SetColor(Brushes.LightYellow);
+                            if (CurrentNode.HasChild(beta.Word()) != null)
+                            {
+                                beta.SetColor(Brushes.Yellow);
+                            }
+                            else
+                            {
+                                beta.SetColor(Brushes.LightYellow);
+                            }
                         }
                     }
                 }
@@ -373,7 +387,7 @@ namespace Keyboard_v5
             }
         }
 
-        private void ConstructLetterLayout(Brush Color)
+        private void ConstructLetterLayout()
         {
             Letters = new List<Bubble>();
 
@@ -573,18 +587,18 @@ namespace Keyboard_v5
 
                 Letters.Add(new Bubble(theCanvas,
                     new Point(theCanvas.Width / 2 + RADIUS[0] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[0] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[0], Color, wtn.character, Bubble.RingStatus.INNER));
+                    BUBBLERADIUS[0], CurrentNode.HasChild(wtn.character) != null ? Brushes.Yellow : Brushes.LightYellow, wtn.character, Bubble.RingStatus.INNER));
             }
 
             cutTheta = 2 * Math.PI / 27;
             for (int i = 0; i < 26; i++)
             {
                 Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[1], Color, (char)((int)('A') + i), Bubble.RingStatus.OUTER));
+                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('A') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER));
             }
 
             Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
-                BUBBLERADIUS[1], Color, '-', Bubble.RingStatus.OUTER));
+                BUBBLERADIUS[1], CurrentNode.HasChild('-') != null ? Brushes.Yellow : Brushes.LightYellow, '-', Bubble.RingStatus.OUTER));
 
         }
 
@@ -781,7 +795,7 @@ namespace Keyboard_v5
                 {
                     Write(PositionData.Dequeue(), DistanceFileWriter);
                 }
-                Write("</movement>", DistanceFileWriter);
+                Write("\r\n</movement>", DistanceFileWriter);
                 System.Windows.Application.Current.Shutdown();
             }
         }
@@ -824,6 +838,14 @@ namespace Keyboard_v5
             SelectionHand = temporary;
             ReturnedToCenter = false;
             BlueFlash = DateTime.Now;
+            if (SwitchHandsButton.Content.Equals("Switch Hand To Right"))
+            {
+                SwitchHandsButton.Content = "Switch Hand to Left";
+            }
+            else
+            {
+                SwitchHandsButton.Content = "Switch Hand to Right";
+            }
         }
 
     }
