@@ -31,13 +31,15 @@ namespace Keyboard_v5
 
         public Ellipse Ellipse;
         public System.Windows.Controls.Label Label;
+        public RingStatus r;
 
-        public Bubble(Canvas Parent, Point Center, int Radius, Brush Color, char c)
+        public Bubble(Canvas Parent, Point Center, int Radius, Brush Color, char c, RingStatus r)
         {
             this.Parent = Parent;
             this.Center = Center;
             this.Radius = Radius;
             this.Color = Color;
+            this.r = r;
 
             Point TopLeft = new Point(Center.X - Radius, Center.Y - Radius);
 
@@ -115,5 +117,10 @@ namespace Keyboard_v5
                 return 1;
             }
         }
+
+        public enum RingStatus
+        {
+            INNER, OUTER
+        };
     }
 }

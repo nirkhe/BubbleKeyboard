@@ -37,8 +37,8 @@ namespace Keyboard_v5
 
         List<Bubble> Letters;
 
-        KeyboardGestureTracker keyboardGuestureTracker = new KeyboardGestureTracker(15, 0.05f, 0.05f, 0.2f);
-        GestureTracker regularGuestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.2f);
+        KeyboardGestureTracker keyboardGestureTracker = new KeyboardGestureTracker(15, 0.05f, 0.05f, 0.2f);
+        GestureTracker regularGestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.2f);
 
         JointID SelectionHand = JointID.HandRight;
         JointID MotionHand = JointID.HandLeft;
@@ -91,6 +91,8 @@ namespace Keyboard_v5
             parameters.JitterRadius = 1.0f;
             parameters.MaxDeviationRadius = 0.5f;
             nui.SkeletonEngine.SmoothParameters = parameters;
+
+            ConstructLetterLayout(Brushes.Yellow);
         }
 
         private void loadDictionary()
@@ -223,7 +225,7 @@ namespace Keyboard_v5
                 //Move Cursor
                 SetCursorPos((int)(MotionHandPosition.X), (int)(MotionHandPosition.Y));
 
-                //Added data position to a 
+                //Added data position to a queue of positions that will be loaded for each letter
                 PositionData.Enqueue("<entry motionhand_x=\"" + MotionHandPosition.X +
                     "\" motionhand_y=\"" + MotionHandPosition.Y +
                     "\" selectionhand_x=\"" + SelectionHandPosition.X +
@@ -232,15 +234,18 @@ namespace Keyboard_v5
                     "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
                     "\" />");
 
+                //Starting Case (only occurs once)
                 if (SelectionHandLast == null)
                 {
                     SelectionHandLast = SelectionHandPosition;
                 }
                 else
                 {
+                    //Measures the distance traveled by the selection hand
                     SelectionHandDistance += Point.Subtract(SelectionHandLast, SelectionHandPosition).Length;
                     SelectionHandLast = SelectionHandPosition;
                 }
+                //Measures the distance traveled by the motion hand
                 if (MotionHandLast == null)
                 {
                     MotionHandLast = MotionHandPosition;
@@ -251,14 +256,14 @@ namespace Keyboard_v5
                     MotionHandLast = MotionHandPosition;
                 }
 
-                Gesture MotionHandGuesture = keyboardGuestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[MotionHand], nui.NuiCamera.ElevationAngle);
-                Gesture SelectionHandGuesture = regularGuestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
+                Gesture MotionHandGesture = keyboardGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[MotionHand], nui.NuiCamera.ElevationAngle);
+                Gesture SelectionHandGesture = regularGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
 
                 if (CenterBubble_Ellipse.IsMouseOver)
                 {
                     ReturnedToCenter = true;
 
-                    if (SelectionHandGuesture != null && SelectionHandGuesture.id == GestureID.SwipeLeft)
+                    if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeLeft)
                     {
                         SendKeys.SendWait("{Backspace}");
                         if (CenterBubble_Label.Content.ToString().Length > 0)
@@ -267,7 +272,7 @@ namespace Keyboard_v5
                             CurrentNode = (CurrentNode.parent != null ? CurrentNode.parent : CurrentNode);
                         }
                     }
-                    else if (SelectionHandGuesture != null && SelectionHandGuesture.id == GestureID.Push)
+                    else if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.Push)
                     {
                         RemoveLayout();
                         CurrentNode = InitialNode;
@@ -297,7 +302,7 @@ namespace Keyboard_v5
                         ReturnedToCenter = false;
                     }
 
-                    if (MotionHandGuesture.id == GestureID.Still)
+                    if (MotionHandGesture.id == GestureID.Still)
                     {
                         Bubble selected = null;
                         foreach (Bubble beta in Letters)
@@ -320,8 +325,9 @@ namespace Keyboard_v5
                             ConstructLetterLayout(Brushes.LightYellow);
                             SendKeys.SendWait(c.ToString().ToLowerInvariant());
                             CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
-
-                            Write("\t<print char=\"" + c + "\">");
+                            string InnerRing = (selected.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
+                            Write("\t<print char=\"" + c + "\" selection_hand_distance=\"" +  SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance + 
+                                "\" InnerRing=\"" + InnerRing + "\"");
                             while (PositionData.Count > 0)
                             {
                                 Write("\t\t" + PositionData.Dequeue());
@@ -546,18 +552,18 @@ namespace Keyboard_v5
 
                 Letters.Add(new Bubble(theCanvas,
                     new Point(theCanvas.Width / 2 + RADIUS[0] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[0] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[0], Color, wtn.character));
+                    BUBBLERADIUS[0], Color, wtn.character, Bubble.RingStatus.INNER));
             }
 
             cutTheta = 2 * Math.PI / 27;
             for (int i = 0; i < 26; i++)
             {
                 Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[1], Color, (char)((int)('A') + i)));
+                    BUBBLERADIUS[1], Color, (char)((int)('A') + i), Bubble.RingStatus.OUTER));
             }
 
             Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
-                BUBBLERADIUS[1], Color, '-'));
+                BUBBLERADIUS[1], Color, '-', Bubble.RingStatus.OUTER));
 
         }
 

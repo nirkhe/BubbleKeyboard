@@ -279,5 +279,13 @@ namespace Keyboard_v5
             return null;
         }
 
+        public bool Equals(Object arg0)
+        {
+            if (arg0.GetType() == this.GetType())
+            {
+                return this.character.Equals(((WordTreeNode)(arg0)).character);
+            }
+            return false;
+        }
     }
 }
