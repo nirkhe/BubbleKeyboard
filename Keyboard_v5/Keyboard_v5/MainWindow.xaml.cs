@@ -383,11 +383,22 @@ namespace Keyboard_v5
                     }
                 }
 
-                if (DateTime.Now.Subtract(BlueFlash).TotalMilliseconds < 500)
-                {
-                    CenterBubble_Ellipse.Fill = Brushes.LightBlue;
-                }
+            }
 
+            if (DateTime.Now.Subtract(BlueFlash).TotalMilliseconds < 500)
+            {
+                CenterBubble_Ellipse.Fill = Brushes.LightBlue;
+            }
+            else
+            {
+                if (CurrentNode.HasChild('!') != null)
+                {
+                    CenterBubble_Ellipse.Fill = Brushes.AntiqueWhite;
+                }
+                else
+                {
+                    CenterBubble_Ellipse.Fill = Brushes.GreenYellow;
+                }
             }
         }
 
