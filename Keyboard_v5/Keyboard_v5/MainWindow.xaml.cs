@@ -212,25 +212,6 @@ namespace Keyboard_v5
         {
             if (TrackedSkeleton != null)
             {
-                 //Setup the default colors of the bubbles
-                foreach (Bubble beta in Letters)
-                {
-                    if (CircleOver(beta.Ellipse))
-                    {
-                        beta.SetColor(Brushes.LawnGreen);
-                    }
-                    else
-                    {
-                        if (CurrentNode.HasChild(beta.Word()) != null)
-                        {
-                            beta.SetColor(Brushes.Yellow);
-                        }
-                        else
-                        {
-                            beta.SetColor(Brushes.LightYellow);
-                        }
-                    }
-                }
                 Joint MotionHandJoint = (TrackedSkeleton.Joints[MotionHand]).ScaleTo(222, 1044);
                 Joint MotionHandJointScaled = TrackedSkeleton.Joints[MotionHand].ScaleTo(1366, 768, 0.55f, 0.55f);
 
@@ -253,6 +234,27 @@ namespace Keyboard_v5
                     "\" selectionhand_y=\"" + SelectionHandPosition.Y +
                     "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
                     "\" />");
+
+                 //Setup the default colors of the bubbles
+                foreach (Bubble beta in Letters)
+                {
+                    beta.refreshFontSize(MotionHandPosition);
+                    if (CircleOver(beta.Ellipse))
+                    {
+                        beta.SetColor(Brushes.LawnGreen);
+                    }
+                    else
+                    {
+                        if (CurrentNode.HasChild(beta.Word()) != null)
+                        {
+                            beta.SetColor(Brushes.Yellow);
+                        }
+                        else
+                        {
+                            beta.SetColor(Brushes.LightYellow);
+                        }
+                    }
+                }
 
                 //Starting Case (only occurs once)
                 if (SelectionHandLast == null)
@@ -596,24 +598,34 @@ namespace Keyboard_v5
             }
 
             double cutTheta = 2 * Math.PI / 9;
+
+            double greatestWords = int.MinValue;
+            foreach (WordTreeNode w in placedChars)
+            {
+                greatestWords = (w.count > greatestWords) ? w.count : greatestWords;
+            }
+
+
             for (int i = 0; i < 9; i++)
             {
                 WordTreeNode wtn = placedChars[i];
 
+                WordTreeNode fromNode = CurrentNode.HasChild(wtn.character);
+
                 Letters.Add(new Bubble(theCanvas,
                     new Point(theCanvas.Width / 2 + RADIUS[0] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[0] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[0], CurrentNode.HasChild(wtn.character) != null ? Brushes.Yellow : Brushes.LightYellow, wtn.character, Bubble.RingStatus.INNER));
+                    BUBBLERADIUS[0], fromNode != null ? Brushes.Yellow : Brushes.LightYellow, wtn.character, Bubble.RingStatus.INNER, 30 + (fromNode != null ? (int)( 18 * fromNode.count / greatestWords) : 0)));
             }
 
             cutTheta = 2 * Math.PI / 27;
             for (int i = 0; i < 26; i++)
             {
                 Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('A') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER));
+                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('A') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER, 24));
             }
 
             Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
-                BUBBLERADIUS[1], CurrentNode.HasChild('-') != null ? Brushes.Yellow : Brushes.LightYellow, '-', Bubble.RingStatus.OUTER));
+                BUBBLERADIUS[1], CurrentNode.HasChild('-') != null ? Brushes.Yellow : Brushes.LightYellow, '-', Bubble.RingStatus.OUTER, 24));
 
         }
 

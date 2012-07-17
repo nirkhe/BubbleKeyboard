@@ -32,14 +32,16 @@ namespace Keyboard_v5
         public Ellipse Ellipse;
         public System.Windows.Controls.Label Label;
         public RingStatus r;
+        public int FontSize;
 
-        public Bubble(Canvas Parent, Point Center, int Radius, Brush Color, char c, RingStatus r)
+        public Bubble(Canvas Parent, Point Center, int Radius, Brush Color, char c, RingStatus r, int FontSize)
         {
             this.Parent = Parent;
             this.Center = Center;
             this.Radius = Radius;
             this.Color = Color;
             this.r = r;
+            this.FontSize = FontSize;
 
             Point TopLeft = new Point(Center.X - Radius, Center.Y - Radius);
 
@@ -52,7 +54,7 @@ namespace Keyboard_v5
             Label.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
             Label.Width = 2 * Radius;
             Label.Height = 2 * Radius;
-            Label.FontSize = 24;
+            Label.FontSize = FontSize;
             Parent.Children.Add(Label);
             setText(c);
 
@@ -122,5 +124,11 @@ namespace Keyboard_v5
         {
             INNER, OUTER
         };
+
+        public void refreshFontSize(Point p)
+        {
+            double distance = Point.Subtract(Center, p).Length;
+            Label.FontSize = (0.5 * Math.Exp(-distance / 500) + 1) * FontSize;
+        }
     }
 }
