@@ -125,10 +125,5 @@ namespace Keyboard_v5
             INNER, OUTER
         };
 
-        public void refreshFontSize(Point p)
-        {
-            double distance = Point.Subtract(Center, p).Length;
-            Label.FontSize = (0.5 * Math.Exp(-distance / 500) + 1) * FontSize;
-        }
     }
 }

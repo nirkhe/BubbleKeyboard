@@ -43,18 +43,15 @@ namespace PointAndClickKeyboard_v5
         JointID SelectionHand = JointID.HandRight;
         JointID MotionHand = JointID.HandLeft;
 
-        GestureTracker GestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.2f);
+        GestureTracker GestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.005f);
 
         double SelectionHandDistance = 0.0, MotionHandDistance = 0.0;
-        Point MotionHandLast, SelectionHandLast;
 
         List<System.Windows.Controls.Button> Buttons;
 
 
         public PointAndClickKeyboard()
         {
-            Buttons = GetButtons();
-
             StartTime = DateTime.Now;
             PositionData = new Queue<string>();
             WordData = new Queue<string>();
@@ -66,6 +63,7 @@ namespace PointAndClickKeyboard_v5
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Buttons = GetButtons();
             nui = new Runtime();
             nui.Initialize(RuntimeOptions.UseColor | RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
@@ -135,7 +133,12 @@ namespace PointAndClickKeyboard_v5
 
                 Gesture SelectionHandGesture = GestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
 
-                if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.Push)
+                if (SelectionHandGesture != null && (SelectionHandGesture.id == GestureID.Push
+                    || SelectionHandGesture.id == GestureID.SwipeDown
+                    || SelectionHandGesture.id == GestureID.SwipeLeft
+                    || SelectionHandGesture.id == GestureID.SwipeRight
+                    || SelectionHandGesture.id == GestureID.SwipeUp)
+                    )
                 {
                     foreach (System.Windows.Controls.Button beta in Buttons)
                     {
@@ -145,9 +148,12 @@ namespace PointAndClickKeyboard_v5
                             if (Shift)
                             {
                                 lowercase = !lowercase;
+                                Shift = false;
+                                Button_Shift1.Content = "Shift Off";
+                                Button_Shift2.Content = "Shift Off";
                             }
                             SendKeys.SendWait(lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
-                            CurrentWord += beta.Content;
+                            CurrentWord += (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
                             string letter = ("\r\n\t\t\t<print char=\"" + (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant()) + "\" selection_hand_distance=\"" + SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance +
                                 "\"");
                             while (PositionData.Count > 0)
@@ -160,45 +166,45 @@ namespace PointAndClickKeyboard_v5
                             SelectionHandDistance = 0.0;
                             MotionHandDistance = 0.0;
                         }
-                        if (PointerOver(Button_Space))
+                    }
+                    if (PointerOver(Button_Space))
+                    {
+                        SendKeys.SendWait(" ");
+                        string word = "\r\n\t\t<word text=\"" + CurrentWord + "\">";
+                        CurrentWord = "";
+                        while (WordData.Count > 0)
                         {
-                            SendKeys.SendWait(" ");
-                            string word = "\r\n\t\t<word text=\""+ CurrentWord + "\">";
-                            CurrentWord = "";
-                            while (WordData.Count > 0)
-                            {
-                                word += WordData.Dequeue();
-                            }
-                            word += "\r\n\t\t</word>";
-                            SentenceData.Enqueue(word);
-                            WordData = new Queue<string>();
+                            word += WordData.Dequeue();
                         }
-                        if (PointerOver(Button_CapsLock))
+                        word += "\r\n\t\t</word>";
+                        SentenceData.Enqueue(word);
+                        WordData = new Queue<string>();
+                    }
+                    if (PointerOver(Button_CapsLock))
+                    {
+                        if (Button_CapsLock.Content.Equals("Caps Lock On"))
                         {
-                            if(Button_CapsLock.Content.Equals("Caps Lock On"))
-                            {
-                                Button_CapsLock.Content = "Caps Lock Off";
-                            }
-                            else
-                            {
-                                Button_CapsLock.Content = "Caps Lock On";
-                            }
-                            Capitals = !Capitals;
+                            Button_CapsLock.Content = "Caps Lock Off";
                         }
-                        if (PointerOver(Button_Shift1) || PointerOver(Button_Shift2))
+                        else
                         {
-                            if (Button_Shift1.Content.Equals("Shift On"))
-                            {
-                                Button_Shift1.Content = "Shift Off";
-                                Button_Shift2.Content = "Shift Off";
-                            }
-                            else
-                            {
-                                Button_Shift1.Content = "Shift On";
-                                Button_Shift2.Content = "Shift On";
-                            }
-                            Shift = !Shift;
+                            Button_CapsLock.Content = "Caps Lock On";
                         }
+                        Capitals = !Capitals;
+                    }
+                    if (PointerOver(Button_Shift1) || PointerOver(Button_Shift2))
+                    {
+                        if (Button_Shift1.Content.Equals("Shift On"))
+                        {
+                            Button_Shift1.Content = "Shift Off";
+                            Button_Shift2.Content = "Shift Off";
+                        }
+                        else
+                        {
+                            Button_Shift1.Content = "Shift On";
+                            Button_Shift2.Content = "Shift On";
+                        }
+                        Shift = !Shift;
                     }
                 }
 
@@ -210,7 +216,8 @@ namespace PointAndClickKeyboard_v5
             Point center_of_pointer = new Point(Canvas.GetLeft(Pointer_Ellipse) + Pointer_Ellipse.Width / 2,
                 Canvas.GetTop(Pointer_Ellipse) + Pointer_Ellipse.Height / 2);
             Point top_left_element = new Point(Canvas.GetLeft(beta), Canvas.GetTop(beta));
-            return (center_of_pointer.X - top_left_element.X <= beta.Width && center_of_pointer.Y - top_left_element.Y <= beta.Height);
+            return ((center_of_pointer.X - top_left_element.X) <= beta.ActualWidth && (center_of_pointer.Y - top_left_element.Y) <= beta.ActualHeight
+                && (center_of_pointer.X - top_left_element.X) >= 0 && (center_of_pointer.Y - top_left_element.Y) >= 0);
         }
 
         void nui_DepthFrameReady(object sender, ImageFrameReadyEventArgs e)

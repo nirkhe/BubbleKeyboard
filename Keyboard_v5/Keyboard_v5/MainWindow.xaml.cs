@@ -39,7 +39,7 @@ namespace Keyboard_v5
         List<Bubble> Letters;
 
         KeyboardGestureTracker keyboardGestureTracker = new KeyboardGestureTracker(15, 0.05f, 0.05f, 0.2f);
-        GestureTracker regularGestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.2f);
+        GestureTracker regularGestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.01f);
 
         JointID SelectionHand = JointID.HandRight;
         JointID MotionHand = JointID.HandLeft;
@@ -65,6 +65,8 @@ namespace Keyboard_v5
         Stack<string> WordStack;
 
         DateTime BlueFlash;
+
+        bool Shift = false;
 
         public Keyboard()
         {
@@ -114,6 +116,7 @@ namespace Keyboard_v5
                 string s = "";
                 while ((s = sr.ReadLine()) != null)
                 {
+                    s = s.ToLowerInvariant();
                     int count = 0;
                     WordTreeNode currentNode = InitialNode;
                     while (count < s.Length)
@@ -140,7 +143,7 @@ namespace Keyboard_v5
                 string s = "";
                 while ((s = sr.ReadLine()) != null)
                 {
-                    s = s.ToUpperInvariant();
+                    s = s.ToLowerInvariant();
                     string[] split = s.Split(' ');
                     if (split.Length == 2)
                     {
@@ -155,7 +158,7 @@ namespace Keyboard_v5
                 string s = "";
                 while ((s = sr.ReadLine()) != null)
                 {
-                    s = s.ToUpperInvariant();
+                    s = s.ToLowerInvariant();
                     string[] split = s.Split(' ');
                     int[] parse = new int[split.Length];
                     bool fit = true;
@@ -239,7 +242,6 @@ namespace Keyboard_v5
                  //Setup the default colors of the bubbles
                 foreach (Bubble beta in Letters)
                 {
-                    beta.refreshFontSize(MotionHandPosition);
                     if (CircleOver(beta.Ellipse))
                     {
                         beta.SetColor(Brushes.LawnGreen);
@@ -323,9 +325,25 @@ namespace Keyboard_v5
                         WordData = new Queue<string>();
                         CenterBubble_Label.Content = "";
                     }
+                    else if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeUp) || Shift == true)
+                    {
+                        Shift = true;
+                        foreach (Bubble beta in Letters)
+                        {
+                            beta.setText(beta.Word().ToString().ToUpperInvariant()[0]);
+                        }
+                    }
+                    else if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeDown) || Shift == false)
+                    {
+                        foreach (Bubble beta in Letters)
+                        {
+                            beta.setText(beta.Word().ToString().ToLowerInvariant()[0]);
+                        }
+                    }
 
                     if (selected != null)
                     {
+                        Shift = false;
                         ReturnedToCenter = false;
                         char c = selected.GetCharacter();
                         RemoveLayout();
@@ -622,7 +640,7 @@ namespace Keyboard_v5
             for (int i = 0; i < 26; i++)
             {
                 Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('A') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER, 24));
+                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('a') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER, 24));
             }
 
             Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),

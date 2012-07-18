@@ -293,7 +293,7 @@ namespace Keyboard_v5
         {
             foreach (WordTreeNode st in children)
             {
-                if (st.character == c)
+                if (st.character == c.ToString().ToLowerInvariant()[0] || st.character == c.ToString().ToUpperInvariant()[0])
                 {
                     return st;
                 }

@@ -39,12 +39,12 @@
             <Button Canvas.Left="403"  Canvas.Top="180" Content="B" Height="36" Name="Button_B" Width="48" FontSize="24" />
             <Button Canvas.Left="455"  Canvas.Top="180" Content="N" Height="36" Name="Button_N" Width="48" FontSize="24" />
             <Button Canvas.Left="507"  Canvas.Top="180" Content="M" Height="36" Name="Button_M" Width="48" FontSize="24" />
-            <Button Canvas.Left="66" Canvas.Top="140" Content="Caps Lock Off" Height="36" Name="Button_CapsLock" Width="95" Click="Button_CapsLock_Click" />
+            <Button Canvas.Left="66" Canvas.Top="140" Content="Caps Lock Off" Height="36" Name="Button_CapsLock" Width="95"/>
             <Button Canvas.Left="66" Canvas.Top="180" Content="Shift Off" Height="36" Name="Button_Shift1" Width="121" />
             <Button Canvas.Left="561" Canvas.Top="180" Content="Shift Off" Height="36" Name="Button_Shift2" Width="94" />
 
-            <Ellipse Canvas.Left="397" Canvas.Top="397" Height="6" Name="Pointer_Ellipse" Stroke="Black" Width="6" Fill="Black" />
             <Button Canvas.Left="195" Canvas.Top="222" Content="Space" FontSize="24" Height="36" Name="Button_Space" Width="360" />
+            <Ellipse Canvas.Left="397" Canvas.Top="397" Height="6" Name="Pointer_Ellipse" Stroke="Black" Width="6" Fill="Black" />
         </Canvas>
     </Grid>
 </Window>
