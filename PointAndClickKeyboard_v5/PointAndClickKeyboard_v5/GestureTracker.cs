@@ -18,7 +18,7 @@ using Coding4Fun.Kinect.Wpf;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
-namespace Keyboard_v5
+namespace PointAndClickKeyboard_v5
 {
     class GestureTracker
     {
@@ -170,129 +170,6 @@ namespace Keyboard_v5
         }
     }
 
-    class KeyboardGestureTracker
-    {
-
-        public KeyboardGestureTracker(int interval, float xThreshold, float yThreshold, float zThreshold)
-        {
-            //trackJoints = new Dictionary<Joint, Microsoft.Research.Kinect.Nui.Vector>();
-            //initialPositions = new Dictionary<Joint, Microsoft.Research.Kinect.Nui.Vector>();
-            this.interval = interval;
-            positions = new Dictionary<Joint, RotationalArray<Microsoft.Research.Kinect.Nui.Vector>>();
-            this.xThreshold = xThreshold;
-            this.yThreshold = yThreshold;
-            this.zThreshold = zThreshold;
-
-        }
-        private int interval;
-        private float xThreshold, yThreshold, zThreshold;
-        private Dictionary<Joint, RotationalArray<Microsoft.Research.Kinect.Nui.Vector>> positions;
-        private Gesture guesture = null;
-        private GestureID previousGuestureID = GestureID.Invalid;
-
-        public Gesture track(SkeletonData trackSkeleton, Joint trackJoint, double elevationAngle)
-        {
-            double theta = elevationAngle * Math.PI / 180;
-            bool repeat = false;
-
-            if (positions.Count < trackSkeleton.Joints.Count)
-            {
-
-                foreach (Joint j in trackSkeleton.Joints)
-                {
-                    if (!positions.ContainsKey(j))
-                    {
-                        Microsoft.Research.Kinect.Nui.Vector newPosition = new Microsoft.Research.Kinect.Nui.Vector();
-
-                        newPosition.W = j.Position.W;
-                        newPosition.X = j.Position.X;
-                        newPosition.Y = (float)(j.Position.Y * Math.Cos(theta) + j.Position.Z * Math.Sin(theta));
-                        newPosition.Z = (float)(j.Position.Z * Math.Cos(theta) - j.Position.Y * Math.Sin(theta));
-
-                        RotationalArray<Microsoft.Research.Kinect.Nui.Vector> jointPositions =
-                            new RotationalArray<Microsoft.Research.Kinect.Nui.Vector>(interval, 0);
-                        jointPositions.Add(newPosition);
-
-                        positions.Add(j, jointPositions);
-                    }
-                }
-                guesture = new Gesture(DateTime.Now, 0, GestureID.Invalid, trackJoint);
-            }
-            else
-            {
-                foreach (Joint j in trackSkeleton.Joints)
-                {
-                    for (int i = 0; i < positions.Keys.Count; i++)
-                    {
-                        Joint k = positions.Keys.ElementAt(i);
-                        if (j.ID == k.ID)
-                        {
-                            Microsoft.Research.Kinect.Nui.Vector newPosition = new Microsoft.Research.Kinect.Nui.Vector();
-
-                            newPosition.W = j.Position.W;
-                            newPosition.X = j.Position.X;
-                            newPosition.Y = (float)(j.Position.Y * Math.Cos(theta) + j.Position.Z * Math.Sin(theta));
-                            newPosition.Z = (float)(j.Position.Z * Math.Cos(theta) - j.Position.Y * Math.Sin(theta));
-
-                            positions[k].Add(newPosition);
-
-                            if (k.ID == trackJoint.ID)
-                            {
-                                Microsoft.Research.Kinect.Nui.Vector velocityVector = new Microsoft.Research.Kinect.Nui.Vector();
-
-                                velocityVector.X = positions[k].GetLast().X - positions[k].GetFirst().X;
-                                velocityVector.Y = positions[k].GetLast().Y - positions[k].GetFirst().Y;
-                                velocityVector.Z = positions[k].GetLast().Z - positions[k].GetFirst().Z;
-                                velocityVector.W = positions[k].GetLast().W - positions[k].GetFirst().W;
-
-                                guesture = guessGuesture(velocityVector, trackJoint, xThreshold, yThreshold, zThreshold);
-                                //Debug.Print("Guessed Guesture is :" + guesture.id.ToString());
-                                if (guesture.id != GestureID.Still && guesture.id == previousGuestureID)
-                                {
-                                    repeat = true;
-                                }
-                                previousGuestureID = guesture.id;
-
-                            }
-                        }
-                    }
-                }
-            }
-            if (repeat)
-            {
-                return new Gesture(DateTime.Now, 0, GestureID.Invalid, trackJoint);
-            }
-            else
-                return guesture;
-
-        }
-
-        public static Gesture guessGuesture(Microsoft.Research.Kinect.Nui.Vector v, Joint source, float xThreshold, float yThreshold, float zThreshold)
-        {
-            double max = Math.Max(Math.Abs(v.X), Math.Max(Math.Abs(v.Y), Math.Abs(v.Z)));
-            if (max < 0.0)
-            {
-                return new Gesture(DateTime.Now, 0, GestureID.Invalid, source);
-            }
-
-            else if (Math.Abs(v.X) + Math.Abs(v.Y) <= 0.1)// Math.Abs(v.Z - ((v.X + v.Y) )) <= 0.1 )
-            {
-                return new Gesture(DateTime.Now, max, GestureID.Still, source);
-            }
-
-            else if ((Math.Abs(v.Z) > 2 * Math.Abs(v.X)) && (Math.Abs(v.Z) > 2 * Math.Abs(v.Y)))
-            {
-                return new Gesture(DateTime.Now, max, (v.Z > 0) ? GestureID.Pull : GestureID.Push, source);
-            }
-
-            else
-            {
-                return new Gesture(DateTime.Now, max, GestureID.Planar, source);
-            }
-        }
-
-    }
-
     class RotationalArray<T> : ICollection<T>
     {
         readonly int size;
@@ -392,4 +269,7 @@ namespace Keyboard_v5
             }
         }
     }
+
+
+
 }

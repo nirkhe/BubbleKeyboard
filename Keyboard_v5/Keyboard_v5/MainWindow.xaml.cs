@@ -51,9 +51,9 @@ namespace Keyboard_v5
         int[] RADIUS = { 150, 250 };
         int[] BUBBLERADIUS = { 48, 24 };
 
-        [System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
-        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        public static extern bool SetCursorPos(int X, int Y);
+        //[System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
+        //[return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        //public static extern bool SetCursorPos(int X, int Y);
 
         bool ReturnedToCenter = false, EnterCenterFirst = false;
 
@@ -72,6 +72,7 @@ namespace Keyboard_v5
             loadTrigram();
 
             StartTime = DateTime.Now;
+    
             PreviousCharacterLocation = new List<WordTreeNode>();
             WordStack = new Stack<string>();
             CurrentNode = InitialNode;
@@ -780,14 +781,6 @@ namespace Keyboard_v5
             }
 
             return result;
-        }
-
-        private FileStream ConstructFileStream(string activeDirectory, string subfolderName, string fileName)
-        {
-            string newPath = System.IO.Path.Combine(activeDirectory, subfolderName);
-            System.IO.Directory.CreateDirectory(newPath);
-            newPath = System.IO.Path.Combine(activeDirectory, fileName);
-            return System.IO.File.Create(newPath);
         }
 
         private void Write(String s, FileStream f)

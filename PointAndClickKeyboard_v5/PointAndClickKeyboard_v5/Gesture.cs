@@ -18,7 +18,7 @@ using Coding4Fun.Kinect.Wpf;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
-namespace Keyboard_v5
+namespace PointAndClickKeyboard_v5
 {
     public class Gesture
     {
