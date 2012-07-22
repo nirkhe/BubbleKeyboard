@@ -180,7 +180,7 @@ namespace PointAndClickKeyboard_v5
                         SentenceData.Enqueue(word);
                         WordData = new Queue<string>();
                     }
-                    if (PointerOver(Button_CapsLock))
+                    else if (PointerOver(Button_CapsLock))
                     {
                         if (Button_CapsLock.Content.Equals("Caps Lock On"))
                         {
@@ -192,19 +192,23 @@ namespace PointAndClickKeyboard_v5
                         }
                         Capitals = !Capitals;
                     }
-                    if (PointerOver(Button_Shift1) || PointerOver(Button_Shift2))
+                    else if (PointerOver(Button_Shift1) || PointerOver(Button_Shift2))
                     {
-                        if (Button_Shift1.Content.Equals("Shift On"))
+                        foreach (System.Windows.Controls.Button b in Buttons)
                         {
-                            Button_Shift1.Content = "Shift Off";
-                            Button_Shift2.Content = "Shift Off";
-                        }
-                        else
-                        {
-                            Button_Shift1.Content = "Shift On";
-                            Button_Shift2.Content = "Shift On";
+                            b.Content = (Shift) ? b.Content.ToString().ToUpperInvariant() : b.Content.ToString().ToLowerInvariant();
                         }
                         Shift = !Shift;
+                    }
+                    else if (PointerOver(Button_Backspace))
+                    {
+                        SendKeys.SendWait("{Backspace}");
+                        PositionData.Enqueue("\r\n\t\t\t\t<backspace motionhand_x=\"" + MotionHandPosition.X +
+                            "\" motionhand_y=\"" + MotionHandPosition.Y +
+                            "\" selectionhand_x=\"" + SelectionHandPosition.X +
+                            "\" selectionhand_y=\"" + SelectionHandPosition.Y +
+                            "\" relative_timestamp=\"" + DateTime.Now.Subtract(StartTime).TotalMilliseconds +
+                            "\" />");
                     }
                 }
 
