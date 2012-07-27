@@ -1,10 +1,10 @@
 Hi,
 
-As some of you may know, over the summer and part of the school year, I have been conducting some research along with Professor Jacob Wobbrock at the University of Washington on Gesture Based Mid-Air Text Entry Systems. As my research comes to a conclusion, I must perform some tests on subjects using these Gesture Based Text Entry Systems.
+As some of you may know, over the summer and part of the school year, I have been conducting some research along with Professor Jacob Wobbrock at the University of Washington on Gesture Based Mid-Air Text Entry Systems (Typing with an interface such as Microsoft Kinect). As my research comes to a conclusion, I must perform some tests on subjects using these Gesture Based Text Entry Systems.
 
-It would be incredibly helpful if you were able to assist me in my research, by volunteering to be a test subject for this study. The study would take approximately 1 hour and there would be a monetary incentive of [INSERT VALUE HERE] as well as some snacks for while you wait. Research will be conducted in Redmond, WA and you would need to provide your own transport. 
+It would be incredibly helpful if you were able to assist me in my research, by volunteering to be a test subject for this study. The study would take approximately 1 hour and there would be a monetary incentive of $15 as well as some snacks for while you wait. Research will be conducted in Redmond, WA and you would need to provide your own transport. 
 
-Here is a video explaining how these Text Entry Systems work: [INSERT VIDEO HERE]. 
+Here is a video explaining how these Text Entry Systems work: http://www.youtube.com/watch?v=dStLwZo5w3A. 
 
 There are no restrictions on who can volunteer to be a subject other than we require that the subjects have only used a Kinect system for Text Entry once or twice and have never used the Bubble Keyboard. We would prefer to have an equal subject distribution of left handed and right handed, as well as subjects who have a difficulty with fine motor control.
 

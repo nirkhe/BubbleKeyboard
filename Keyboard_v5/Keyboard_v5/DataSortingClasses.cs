@@ -54,33 +54,33 @@ namespace Keyboard_v5
             //        return i;
             //}
             //return -1;
-            return Search(x, 0, MainNodes.Count);
+            return Search(x, 0, MainNodes.Count - 1);
         }
 
         public int Search(string x, int StartIndex, int EndIndex)
         {
-            int midpoint = (StartIndex + EndIndex) / 2;
-            int value = MainNodes[midpoint].text.CompareTo(x);
-
-            if (StartIndex == EndIndex)
+            if (EndIndex < StartIndex)
             {
                 return -1;
-            }
-            if (value == 1)
-            {
-                return Search(x, StartIndex, midpoint - 1);
-            }
-            else if (value == 0)
-            {
-                return midpoint;
-            }
-            else if (value == -1)
-            {
-                return Search(x, midpoint + 1, EndIndex);
             }
             else
             {
-                return -1;
+                int mid = StartIndex + ((EndIndex - StartIndex) / 2);
+
+                int comparison = MainNodes[mid].CompareTo(x);
+
+                if (comparison == -1)
+                {
+                    return Search(x, StartIndex, mid - 1);
+                }
+                else if (comparison == 1)
+                {
+                    return Search(x, mid + 1, EndIndex);
+                }
+                else
+                {
+                    return mid;
+                }
             }
         }
     }
@@ -131,30 +131,30 @@ namespace Keyboard_v5
 
         public int Search(int index, int StartIndex, int EndIndex)
         {
-            int midpoint = (StartIndex + EndIndex) / 2;
-            if (StartIndex == EndIndex)
+            if (EndIndex < StartIndex)
             {
                 return -1;
-            }
-
-            int value = SecondaryNodeChildren[midpoint].index;
-
-            if (index < value)
-            {
-                return Search(index, StartIndex, midpoint - 1);
-            }
-            else if (index == value)
-            {
-                return midpoint;
-            }
-            else if (index > value)
-            {
-                return Search(index, midpoint + 1, EndIndex);
             }
             else
             {
-                return -1;
+                int mid = StartIndex + ((EndIndex - StartIndex) / 2);
+
+                int comparison = SecondaryNodeChildren[mid].index.CompareTo(index);
+
+                if (comparison == -1)
+                {
+                    return Search(index, StartIndex, mid - 1);
+                }
+                else if (comparison == 1)
+                {
+                    return Search(index, mid + 1, EndIndex);
+                }
+                else
+                {
+                    return mid;
+                }
             }
+            
         }
 
         public int CompareTo(Object arg0)

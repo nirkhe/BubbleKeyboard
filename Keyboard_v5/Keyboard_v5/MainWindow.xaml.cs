@@ -28,7 +28,9 @@ namespace Keyboard_v5
     public partial class Keyboard : Window
     {
         SkeletonData TrackedSkeleton;
-        Bubble selected;
+        List<Bubble> selected;
+        List<DateTime[]> selected_time;
+        List<bool> selected_off;
 
         Runtime nui;
         ImageFrame currentVideoFrame = new ImageFrame();
@@ -83,6 +85,10 @@ namespace Keyboard_v5
             SentenceData = new Queue<string>();
             TextData = new Queue<string>();
 
+            selected = new List<Bubble>();
+            selected_off = new List<bool>();
+            selected_time = new List<DateTime[]>();
+
             InitializeComponent();
         }
 
@@ -92,7 +98,9 @@ namespace Keyboard_v5
             nui.Initialize(RuntimeOptions.UseColor | RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
-            nui.NuiCamera.ElevationAngle = 10;
+            nui.VideoFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_VideoFrameReady);
+            nui.VideoStream.Open(ImageStreamType.Video, 2, ImageResolution.Resolution640x480, ImageType.Color);
+            nui.NuiCamera.ElevationAngle = 5;
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
@@ -204,6 +212,12 @@ namespace Keyboard_v5
             }
         }
 
+        void nui_VideoFrameReady(object sender, ImageFrameReadyEventArgs e)
+        {
+            currentVideoFrame = e.ImageFrame;
+            VideoImage.Source = e.ImageFrame.ToBitmapSource();
+        }
+
         void RecieveAndSetSkeletons(SkeletonFrame AllSkeletons)
         {
             TrackedSkeleton = (from s in AllSkeletons.Skeletons
@@ -259,6 +273,23 @@ namespace Keyboard_v5
                     }
                 }
 
+                for (int i = 0; i < selected.Count; i++)
+                {
+                    if (!selected_off[i] && !CircleOver(selected[i].Ellipse))
+                    {
+                        selected_off[i] = true;
+                        selected_time[i][1] = DateTime.Now;
+                    }
+                    else if (selected_off[i] && CircleOver(selected[i].Ellipse))
+                    {
+                        TimeSpan t = selected_time[i][1].Subtract(selected_time[i][0]);
+                        selected_time[i][0] = DateTime.Now.Subtract(t);
+                        selected_time[i][1] = DateTime.Now;
+                        selected_off[i] = false;
+                    }
+
+                }
+
                 //Starting Case (only occurs once)
                 if (SelectionHandLast == null)
                 {
@@ -293,7 +324,7 @@ namespace Keyboard_v5
                         PositionData = new Queue<string>();
                         EnterCenterFirst = true;
                     }
-                    if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeLeft)
+                    if (SelectionHandGesture != null && ( (SelectionHandGesture.id == GestureID.SwipeLeft && SelectionHand == JointID.HandRight) || (SelectionHandGesture.id == GestureID.SwipeRight && SelectionHand == JointID.HandLeft) ))
                     {
                         SendKeys.SendWait("{Backspace}");
                         if (CenterBubble_Label.Content.ToString().Length > 0)
@@ -335,17 +366,30 @@ namespace Keyboard_v5
                     }
                     else if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeDown) || Shift == false)
                     {
+                        Shift = false;
                         foreach (Bubble beta in Letters)
                         {
                             beta.setText(beta.Word().ToString().ToLowerInvariant()[0]);
                         }
                     }
 
-                    if (selected != null)
+                    if (selected.Count > 0)
                     {
+                        int best = 0;
+
+                        for (int i = 1; i < selected.Count; i++)
+                        {
+                            if (selected_time[i][1].Subtract(selected_time[i][0]).TotalDays > selected_time[best][1].Subtract(selected_time[best][0]).TotalDays)
+                            {
+                                best = i;
+                            }
+                        }
+
+                        Bubble select = selected[best];
+
                         Shift = false;
                         ReturnedToCenter = false;
-                        char c = selected.GetCharacter();
+                        char c = select.GetCharacter();
                         RemoveLayout();
                         WordTreeNode NextNode = CurrentNode.HasChild(c);
                         if (NextNode == null)
@@ -358,7 +402,7 @@ namespace Keyboard_v5
                         SendKeys.SendWait(c.ToString().ToLowerInvariant());
                         CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
                         string letter = "";
-                        string InnerRing = (selected.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
+                        string InnerRing = (select.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
                         letter += ("\r\n\t\t\t<print char=\"" + c + "\" selection_hand_distance=\"" + SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance +
                             "\" InnerRing=\"" + InnerRing + "\"");
                         while (PositionData.Count > 0)
@@ -380,7 +424,9 @@ namespace Keyboard_v5
                             CenterBubble_Ellipse.Fill = Brushes.GreenYellow;
                         }
 
-                        selected = null;
+                        selected = new List<Bubble>();
+                        selected_time = new List<DateTime[]>();
+                        selected_off = new List<bool> ();
                     }
 
                 }
@@ -391,7 +437,15 @@ namespace Keyboard_v5
                     {
                         foreach (Bubble beta in Letters)
                         {
-                            selected = CircleOver(beta.Ellipse) ? beta : selected;
+                            if (CircleOver(beta.Ellipse) && !selected.Contains(beta))
+                            {
+                                selected.Add(beta);
+                                DateTime[] arr = new DateTime[2];
+                                arr[0] = DateTime.Now;
+                                arr[1] = DateTime.Now;
+                                selected_time.Add(arr);
+                                selected_off.Add(false);
+                            }
                             if (CurrentNode.HasChild(beta.Word()) != null)
                             {
                                 beta.SetColor(Brushes.Yellow);
@@ -632,18 +686,18 @@ namespace Keyboard_v5
                 WordTreeNode fromNode = CurrentNode.HasChild(wtn.character);
 
                 Letters.Add(new Bubble(theCanvas,
-                    new Point(theCanvas.Width / 2 + RADIUS[0] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[0] * -Math.Cos(cutTheta * i)),
+                    new Point(Canvas.GetLeft(CenterBubble_Ellipse) + CenterBubble_Ellipse.Width / 2 + RADIUS[0] * Math.Sin(cutTheta * i), Canvas.GetTop(CenterBubble_Ellipse) + CenterBubble_Ellipse.Height / 2 + RADIUS[0] * -Math.Cos(cutTheta * i)),
                     BUBBLERADIUS[0], fromNode != null ? Brushes.Yellow : Brushes.LightYellow, wtn.character, Bubble.RingStatus.INNER, 30 + (fromNode != null ? (int)( 18 * fromNode.count / greatestWords) : 0)));
             }
 
             cutTheta = 2 * Math.PI / 27;
             for (int i = 0; i < 26; i++)
             {
-                Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
+                Letters.Add(new Bubble(theCanvas, new Point(Canvas.GetLeft(CenterBubble_Ellipse) + CenterBubble_Ellipse.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), Canvas.GetTop(CenterBubble_Ellipse) + CenterBubble_Ellipse.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
                     BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('a') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER, 24));
             }
 
-            Letters.Add(new Bubble(theCanvas, new Point(theCanvas.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), theCanvas.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
+            Letters.Add(new Bubble(theCanvas, new Point(Canvas.GetLeft(CenterBubble_Ellipse) + CenterBubble_Ellipse.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), Canvas.GetTop(CenterBubble_Ellipse) + CenterBubble_Ellipse.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
                 BUBBLERADIUS[1], CurrentNode.HasChild('-') != null ? Brushes.Yellow : Brushes.LightYellow, '-', Bubble.RingStatus.OUTER, 24));
 
         }
@@ -689,9 +743,9 @@ namespace Keyboard_v5
 
                 for (var x = 0; x < width; x++)
                 {
-
-                    var index = ((width - x - 1) + heightOffset) * 4;
-                    var videoIndex = (((videoScaleWidth * x) - 1) + videoHeightOffset) * 4;
+                    var xvideo = (width - 1) - x;
+                    var index = ((width - xvideo - 1) + heightOffset) * 4;
+                    var videoIndex = (((videoScaleWidth * xvideo) - 1) + videoHeightOffset) * 4;
 
                     //var distance = GetDistance(depthData[depthIndex], depthData[depthIndex + 1]);
                     var distance = GetDistanceWithPlayerIndex(depthData[depthIndex], depthData[depthIndex + 1]);
@@ -876,7 +930,7 @@ namespace Keyboard_v5
             SelectionHand = temporary;
             ReturnedToCenter = false;
             BlueFlash = DateTime.Now;
-            if (SwitchHandsButton.Content.Equals("Switch Hand To Right"))
+            if (SwitchHandsButton.Content.Equals("Switch Hand to Right"))
             {
                 SwitchHandsButton.Content = "Switch Hand to Left";
             }

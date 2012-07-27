@@ -1,24 +1,26 @@
-Plans for Video: (General Script)
 
-Welcome to Gesture Based Mid-Air Text Entry. I understand that this title sounds incredibly complex and frankly quite confusing. Recent progressions of Mid-Air Platforms such as the Microsoft Kinect and Leap 3D have brought forth a need for text entry systems that function along with these programs. Currently these Text Entry programs are utilized for typing small phrases or keywords for search in applications from social media networking such as Twitter to Entertainment such as XBOX Live or Netflix as these applications are commonly used in a living room setting without an actual controller. Text Entry on these platforms currently employs basic gesture techniques for character selection. The general text entry structure used in the industry is best described by that of Evoluce, whose keyboard includes a display QWERTY keyboard and a pointer which is controlled by the position of your hand and a forward gesture to select letters. However, other non-standard keyboards have been created by members of the public, many of which can be seen on YouTube.
+[VIDEO OF BUBBLE KEYBOARD]
 
-However, the systems currently used in the industry do not use the greater potential of gesture based analysis. Little research has been done on the potential of more gesture dependent text entry systems in contrast with more position dependent text entry systems. Also, a combination of prediction algorithms when used in conjunction with these more gesture dependent systems can further improve their potential. This research demonstrates the possible improvements that could be made for mid-air text entry systems if we utilized more gesture dependent text entry systems. The potential of more gesture dependent text entry systems could yield inputs with minimalized, faster, and simpler motion. Furthermore, current methods offer difficulty for users with fine motor control impairments as locating and maintaining a hand position is exceedingly difficult.
+0:09
 
-This research presents two keyboards, the Bubble Keyboard and a model of the industry standard. 
+The Bubble Keyboard is a new keyboard designed by us with the specific intention of using these gesture based systems and prediction algorithms to minimize motion and increase speed, in contrast to a model of the industry standard.
 
-The Bubble Keyboard is a new keyboard designed by us with the specific intention of using these gesture based systems and prediction algorithms to minimalize speed and increase motion, in contrast to a model of the industry standard. The Bubble Keyboard consists of two concentric rings of letters equidistant from a center point where the outer ring is a static representation of the entire alphabet and the inner is a variable representation of the most probable letters. Selection of letters is done by passing the cursor, which is controlled by the user’s hand, over the desired bubble in a wave rather than placing the cursor over the letter and making a selection gesture as done in the industry model. Other functions, such as Backspace and Shift, are done through gestures rather than button selection. 
-
-The Industry Model is fairly intuitive to use. Simply select the Letter with one hands and make a movement gesture with the other hand to indicate selection. Then repeat with other letters.
+The Bubble Keyboard consists of two concentric rings of letters from a center point where the outer ring is a static representation of the entire alphabet and the inner is a variable representation of the most probable letters. Selection of letters is done by passing the cursor, which is controlled by the user’s hand, over the desired bubble in a wave rather than placing the cursor over the letter and making a selection gesture as done in the industry model. Other functions, such as Backspace and Shift, are done through gestures rather than button selection. 
 
 
-Here's a thorough demonstration of the usability of these keyboards:
+[VOICE OVER]
+1:28
+The motion hand, as determined by the user prior to testing, controls the movement of the black pointer on the screen. 
 
-In both keyboards, the motion hand, as determined by the user prior to testing, controls the movement of the black pointer on the screen. 
-
+[VOICE OVER]
+1:42
 Selection of letters in the Bubble Keyboard is simple: Simply move the pointer over the bubble (in either ring) that corresponds to your desired choice and then bring your hand back to the center circle. This completes a selection. 
 
-In order to press space, simply push your selection hand towards the keyboard. In order to press backsapce, simply swipe you selection hand to the left and the previous letter will be erased.
+[VOICE OVER]
+1:48
+In order to press space, simply push your selection hand towards the keyboard. In order to press backsapce, simply swipe you selection hand to the right and the previous letter will be erased.
 
+[VOICE OVER]
 The testing will be conducted by asking you to type a series of sentences as prompted by a program. When you are done typing the sentence, the tester will refresh the sentence displayed. Simply continue until testing is complete. 
 
 [END]
