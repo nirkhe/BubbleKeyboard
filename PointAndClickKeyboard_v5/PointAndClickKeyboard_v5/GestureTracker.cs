@@ -30,7 +30,7 @@ namespace PointAndClickKeyboard_v5
         private float xThreshold;
         private float yThreshold;
         private float zThreshold;
-        private static int timer;
+        private static DateTime timer = DateTime.Now;
 
         private bool lockout = false;
         private Gesture guesture = null;
@@ -45,12 +45,12 @@ namespace PointAndClickKeyboard_v5
             this.xThreshold = xThreshold;
             this.yThreshold = yThreshold;
             this.zThreshold = zThreshold;
-            timer = 0;
+            timer = DateTime.Now;
         }
 
         public Gesture track(SkeletonData trackSkeleton, Joint trackJoint, double elevationAngle)
         {
-            timer++;
+            
             //Guesture guesture = null;
             double theta = elevationAngle * Math.PI / 180;
 
@@ -129,40 +129,47 @@ namespace PointAndClickKeyboard_v5
             }
         }
 
-        private static int MinTimerTime = 60;
 
         public static Gesture guessGuesture(Microsoft.Research.Kinect.Nui.Vector v, Joint source, float xThreshold, float yThreshold, float zThreshold)
         {
-            timer++;
-            double max = Math.Max(Math.Abs(v.X), Math.Max(Math.Abs(v.Y), Math.Abs(v.Z)));
-            if (max < 0.17)
-            {
-                return new Gesture(DateTime.Now, 0, GestureID.Invalid, source);
-            }
+            
+            //double max = Math.Max(Math.Abs(v.X), Math.Max(Math.Abs(v.Y), Math.Abs(v.Z)));
+            //if (max < 0.17)
+            //{
+            //    return new Gesture(DateTime.Now, 0, GestureID.Invalid, source);
+            //}
 
-            if (max == Math.Abs(v.X) && max > xThreshold
-               && ((previousGuesture == GestureID.SwipeLeft || previousGuesture == GestureID.SwipeRight || previousGuesture == GestureID.Invalid)
-                || timer > MinTimerTime))
-            {
-                timer = 0;
-                return (v.X > 0.0) ? new Gesture(DateTime.Now, max, GestureID.SwipeRight, source) :
-                      new Gesture(DateTime.Now, max, GestureID.SwipeLeft, source);
-            }
-            if (timer > MinTimerTime)
-            {
-                if (max == Math.Abs(v.Y) && max > yThreshold)
-                {
-                    timer = 0;
-                    return (v.Y > 0.0) ? new Gesture(DateTime.Now, max, GestureID.SwipeUp, source) :
-                         new Gesture(DateTime.Now, max, GestureID.SwipeDown, source);
-                }
-                else if (max == Math.Abs(v.Z) && max > zThreshold)
-                {
-                    timer = 0;
-                    return (v.Z > 0.0) ? new Gesture(DateTime.Now, max, GestureID.Pull, source) :
-                         new Gesture(DateTime.Now, max, GestureID.Push, source);
-                }
+            //if (max == Math.Abs(v.X) && max > xThreshold
+            //   && ((previousGuesture == GestureID.SwipeLeft || previousGuesture == GestureID.SwipeRight || previousGuesture == GestureID.Invalid)
+            //    || DateTime.Now.Subtract(timer).TotalSeconds > 0.1))
+            //{
+            //    timer = DateTime.Now;
+            //    return (v.X > 0.0) ? new Gesture(DateTime.Now, max, GestureID.SwipeRight, source) :
+            //          new Gesture(DateTime.Now, max, GestureID.SwipeLeft, source);
+            //}
+            //if (DateTime.Now.Subtract(timer).TotalSeconds > 0.1)
+            //{
+            //    if (max == Math.Abs(v.Y) && max > yThreshold)
+            //    {
+            //        timer = DateTime.Now;
+            //        return (v.Y > 0.0) ? new Gesture(DateTime.Now, max, GestureID.SwipeUp, source) :
+            //             new Gesture(DateTime.Now, max, GestureID.SwipeDown, source);
+            //    }
+            //    else if (max == Math.Abs(v.Z) && max > zThreshold)
+            //    {
+            //        timer = DateTime.Now;
+            //        return (v.Z > 0.0) ? new Gesture(DateTime.Now, max, GestureID.Pull, source) :
+            //             new Gesture(DateTime.Now, max, GestureID.Push, source);
+            //    }
 
+            //}
+            if (DateTime.Now.Subtract(timer).TotalSeconds > 0.1)
+            {
+                if (Math.Abs(v.Z) > zThreshold)
+                {
+                    timer = DateTime.Now;
+                    return new Gesture(DateTime.Now, Math.Abs(v.Z), v.Z > 0 ? GestureID.Pull : GestureID.Push, source);
+                }
             }
 
             return new Gesture(DateTime.Now, 0, GestureID.Invalid, source);

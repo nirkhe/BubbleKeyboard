@@ -36,6 +36,9 @@ namespace PointAndClickKeyboard_v5
         bool Capitals = false, Shift = false;
         string CurrentWord = "";
 
+        string last_char = null;
+        DateTime last_char_time = DateTime.Now;
+
         DateTime StartTime;
 
         Queue<string> PositionData, WordData, SentenceData, TextData;
@@ -43,7 +46,7 @@ namespace PointAndClickKeyboard_v5
         JointID SelectionHand = JointID.HandRight;
         JointID MotionHand = JointID.HandLeft;
 
-        GestureTracker GestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.005f);
+        GestureTracker GestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.05f);
 
         double SelectionHandDistance = 0.0, MotionHandDistance = 0.0;
 
@@ -68,7 +71,7 @@ namespace PointAndClickKeyboard_v5
             nui.Initialize(RuntimeOptions.UseColor | RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking);
             nui.DepthFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_DepthFrameReady);
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
-            nui.NuiCamera.ElevationAngle = 10;
+            nui.NuiCamera.ElevationAngle = 19;
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
@@ -133,72 +136,89 @@ namespace PointAndClickKeyboard_v5
 
                 Gesture SelectionHandGesture = GestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
 
-                if (SelectionHandGesture != null && (SelectionHandGesture.id == GestureID.Push
-                    || SelectionHandGesture.id == GestureID.SwipeDown
-                    || SelectionHandGesture.id == GestureID.SwipeLeft
-                    || SelectionHandGesture.id == GestureID.SwipeRight
-                    || SelectionHandGesture.id == GestureID.SwipeUp)
-                    )
+                if (SelectionHandGesture != null && (SelectionHandGesture.id == GestureID.Push))
                 {
                     foreach (System.Windows.Controls.Button beta in Buttons)
                     {
                         if (PointerOver(beta))
                         {
-                            bool lowercase = !Capitals;
-                            if (Shift)
+                            if ((((string)(beta.Content)).Equals(last_char) && DateTime.Now.Subtract(last_char_time).TotalSeconds > 0.75) || (!((string)(beta.Content)).Equals(last_char)))
                             {
-                                lowercase = !lowercase;
-                                Shift = false;
-                                Button_Shift1.Content = "Shift Off";
-                                Button_Shift2.Content = "Shift Off";
+                                bool lowercase = !Capitals;
+                                if (Shift)
+                                {
+                                    lowercase = !lowercase;
+                                    Shift = false;
+                                    Button_Shift1.Content = "Shift Off";
+                                    Button_Shift2.Content = "Shift Off";
+                                }
+                                SendKeys.SendWait(lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
+                                CurrentWord += (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
+                                string letter = ("\r\n\t\t\t<print char=\"" + (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant()) + "\" selection_hand_distance=\"" + SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance +
+                                    "\"");
+                                while (PositionData.Count > 0)
+                                {
+                                    letter += PositionData.Dequeue();
+                                }
+                                PositionData = new Queue<string>();
+                                letter += ("\r\n\t\t\t</print>");
+                                WordData.Enqueue(letter);
+                                SelectionHandDistance = 0.0;
+                                MotionHandDistance = 0.0;
+
+                                last_char = (string)(beta.Content);
+                                last_char_time = DateTime.Now;
                             }
-                            SendKeys.SendWait(lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
-                            CurrentWord += (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant());
-                            string letter = ("\r\n\t\t\t<print char=\"" + (lowercase ? beta.Content.ToString().ToLowerInvariant() : beta.Content.ToString().ToUpperInvariant()) + "\" selection_hand_distance=\"" + SelectionHandDistance + "\" motion_hand_distance=\"" + MotionHandDistance +
-                                "\"");
-                            while (PositionData.Count > 0)
-                            {
-                                letter += PositionData.Dequeue();
-                            }
-                            PositionData = new Queue<string>();
-                            letter += ("\r\n\t\t\t</print>");
-                            WordData.Enqueue(letter);
-                            SelectionHandDistance = 0.0;
-                            MotionHandDistance = 0.0;
                         }
                     }
                     if (PointerOver(Button_Space))
                     {
-                        SendKeys.SendWait(" ");
-                        string word = "\r\n\t\t<word text=\"" + CurrentWord + "\">";
-                        CurrentWord = "";
-                        while (WordData.Count > 0)
+                        if ((((string)(Button_Space.Content)).Equals(last_char) && DateTime.Now.Subtract(last_char_time).TotalSeconds > 0.75) || (!((string)(Button_Space.Content)).Equals(last_char)))
                         {
-                            word += WordData.Dequeue();
+                            SendKeys.SendWait(" ");
+                            string word = "\r\n\t\t<word text=\"" + CurrentWord + "\">";
+                            CurrentWord = "";
+                            while (WordData.Count > 0)
+                            {
+                                word += WordData.Dequeue();
+                            }
+                            word += "\r\n\t\t</word>";
+                            SentenceData.Enqueue(word);
+                            WordData = new Queue<string>();
+                            last_char = (string)(Button_Space.Content);
+                            last_char_time = DateTime.Now;
                         }
-                        word += "\r\n\t\t</word>";
-                        SentenceData.Enqueue(word);
-                        WordData = new Queue<string>();
                     }
                     else if (PointerOver(Button_CapsLock))
                     {
-                        if (Button_CapsLock.Content.Equals("Caps Lock On"))
+                        if ((last_char.Equals("CapsLk") && DateTime.Now.Subtract(last_char_time).TotalSeconds > 0.75) || (!last_char.Equals("CapsLk")))
                         {
-                            Button_CapsLock.Content = "Caps Lock Off";
+                            if (Button_CapsLock.Content.Equals("Caps Lock On"))
+                            {
+                                Button_CapsLock.Content = "Caps Lock Off";
+                            }
+                            else
+                            {
+                                Button_CapsLock.Content = "Caps Lock On";
+                            }
+                            Capitals = !Capitals;
+                            last_char = "CapsLk";
+                            last_char_time = DateTime.Now;
+
                         }
-                        else
-                        {
-                            Button_CapsLock.Content = "Caps Lock On";
-                        }
-                        Capitals = !Capitals;
                     }
                     else if (PointerOver(Button_Shift1) || PointerOver(Button_Shift2))
                     {
-                        foreach (System.Windows.Controls.Button b in Buttons)
+                        if ((last_char.Equals("Shift") && DateTime.Now.Subtract(last_char_time).TotalSeconds > 0.75) || (!last_char.Equals("Shift")))
                         {
-                            b.Content = (Shift) ? b.Content.ToString().ToUpperInvariant() : b.Content.ToString().ToLowerInvariant();
+                            foreach (System.Windows.Controls.Button b in Buttons)
+                            {
+                                b.Content = (Shift) ? b.Content.ToString().ToUpperInvariant() : b.Content.ToString().ToLowerInvariant();
+                            }
+                            Shift = !Shift;
+                            last_char = "Shift";
+                            last_char_time = DateTime.Now;
                         }
-                        Shift = !Shift;
                     }
                     else if (PointerOver(Button_Backspace))
                     {
