@@ -43,15 +43,17 @@ namespace Keyboard_v5
         KeyboardGestureTracker keyboardGestureTracker = new KeyboardGestureTracker(15, 0.05f, 0.05f, 0.2f);
         GestureTracker regularGestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.01f);
 
-        JointID SelectionHand = JointID.HandRight;
-        JointID MotionHand = JointID.HandLeft;
+        JointID SelectionHand = JointID.HandLeft;
+        JointID MotionHand = JointID.HandRight;
 
         double SelectionHandDistance = 0.0, MotionHandDistance = 0.0;
 
         Point MotionHandLast, SelectionHandLast;
 
+        DateTime last_space = DateTime.Now;
+
         int[] RADIUS = { 150, 250 };
-        int[] BUBBLERADIUS = { 48, 24 };
+        int[] BUBBLERADIUS = { 48, 30 };
 
         //[System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
         //[return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
@@ -89,6 +91,8 @@ namespace Keyboard_v5
             selected_off = new List<bool>();
             selected_time = new List<DateTime[]>();
 
+            last_space = DateTime.Now;
+
             InitializeComponent();
         }
 
@@ -100,7 +104,7 @@ namespace Keyboard_v5
             nui.DepthStream.Open(ImageStreamType.Depth, 2, ImageResolution.Resolution320x240, ImageType.DepthAndPlayerIndex);
             nui.VideoFrameReady += new EventHandler<ImageFrameReadyEventArgs>(nui_VideoFrameReady);
             nui.VideoStream.Open(ImageStreamType.Video, 2, ImageResolution.Resolution640x480, ImageType.Color);
-            nui.NuiCamera.ElevationAngle = 5;
+            nui.NuiCamera.ElevationAngle = 19;
 
             nui.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(nui_SkeletonFrameReady);
 
@@ -312,6 +316,18 @@ namespace Keyboard_v5
                     MotionHandLast = MotionHandPosition;
                 }
 
+                foreach (Bubble beta in Letters)
+                {
+                    if (Shift)
+                    {
+                        beta.setText(beta.Word().ToString().ToUpperInvariant()[0]);
+                    }
+                    else
+                    {
+                        beta.setText(beta.Word().ToString().ToLowerInvariant()[0]);
+                    }
+                }
+
                 Gesture MotionHandGesture = keyboardGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[MotionHand], nui.NuiCamera.ElevationAngle);
                 Gesture SelectionHandGesture = regularGestureTracker.track(TrackedSkeleton, TrackedSkeleton.Joints[SelectionHand], nui.NuiCamera.ElevationAngle);
 
@@ -341,22 +357,26 @@ namespace Keyboard_v5
                     }
                     else if (SelectionHandGesture != null && SelectionHandGesture.id == GestureID.Push)
                     {
-                        RemoveLayout();
-                        CurrentNode = InitialNode;
-                        ConstructLetterLayout();
-                        SendKeys.SendWait(" ");
-                        WordStack.Push(CenterBubble_Label.Content.ToString());
-                        string word = "\r\n\t\t<word text=\"" + WordStack.Peek() + "\">";
-                        while (WordData.Count > 0)
+                        if(DateTime.Now.Subtract(last_space).TotalSeconds > 0.75)
                         {
-                            word += WordData.Dequeue();
+                            RemoveLayout();
+                            CurrentNode = InitialNode;
+                            ConstructLetterLayout();
+                            SendKeys.SendWait(" ");
+                            WordStack.Push(CenterBubble_Label.Content.ToString());
+                            string word = "\r\n\t\t<word text=\"" + WordStack.Peek() + "\">";
+                            while (WordData.Count > 0)
+                            {
+                                word += WordData.Dequeue();
+                            }
+                            word += "\r\n\t\t</word>";
+                            SentenceData.Enqueue(word);
+                            WordData = new Queue<string>();
+                            CenterBubble_Label.Content = "";
+                            last_space = DateTime.Now;
                         }
-                        word += "\r\n\t\t</word>";
-                        SentenceData.Enqueue(word);
-                        WordData = new Queue<string>();
-                        CenterBubble_Label.Content = "";
                     }
-                    else if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeUp) || Shift == true)
+                    if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeUp) || Shift == true)
                     {
                         Shift = true;
                         foreach (Bubble beta in Letters)
@@ -364,7 +384,7 @@ namespace Keyboard_v5
                             beta.setText(beta.Word().ToString().ToUpperInvariant()[0]);
                         }
                     }
-                    else if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeDown) || Shift == false)
+                    if ((SelectionHandGesture != null && SelectionHandGesture.id == GestureID.SwipeDown) || Shift == false)
                     {
                         Shift = false;
                         foreach (Bubble beta in Letters)
@@ -399,7 +419,7 @@ namespace Keyboard_v5
                         }
                         CurrentNode = NextNode;
                         ConstructLetterLayout();
-                        SendKeys.SendWait(c.ToString().ToLowerInvariant());
+                        SendKeys.SendWait(c.ToString());
                         CenterBubble_Label.Content = CenterBubble_Label.Content.ToString() + c.ToString();
                         string letter = "";
                         string InnerRing = (select.r == Bubble.RingStatus.INNER ? "true" : (PreviousCharacterLocation.Contains(CurrentNode) ? "false" : "outside"));
@@ -694,7 +714,7 @@ namespace Keyboard_v5
             for (int i = 0; i < 26; i++)
             {
                 Letters.Add(new Bubble(theCanvas, new Point(Canvas.GetLeft(CenterBubble_Ellipse) + CenterBubble_Ellipse.Width / 2 + RADIUS[1] * Math.Sin(cutTheta * i), Canvas.GetTop(CenterBubble_Ellipse) + CenterBubble_Ellipse.Height / 2 + RADIUS[1] * -Math.Cos(cutTheta * i)),
-                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('a') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('A') + i), Bubble.RingStatus.OUTER, 24));
+                    BUBBLERADIUS[1], CurrentNode.HasChild((char)((int)('a') + i)) != null ? Brushes.Yellow : Brushes.LightYellow, (char)((int)('a') + i), Bubble.RingStatus.OUTER, 24));
             }
 
             Letters.Add(new Bubble(theCanvas, new Point(Canvas.GetLeft(CenterBubble_Ellipse) + CenterBubble_Ellipse.Width / 2 + RADIUS[1] * Math.Sin(26 * cutTheta), Canvas.GetTop(CenterBubble_Ellipse) + CenterBubble_Ellipse.Height / 2 + RADIUS[1] * -Math.Cos(26 * -cutTheta)),
@@ -930,7 +950,7 @@ namespace Keyboard_v5
             SelectionHand = temporary;
             ReturnedToCenter = false;
             BlueFlash = DateTime.Now;
-            if (SwitchHandsButton.Content.Equals("Switch Hand to Right"))
+            if (MotionHand == JointID.HandRight)
             {
                 SwitchHandsButton.Content = "Switch Hand to Left";
             }

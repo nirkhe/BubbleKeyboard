@@ -43,8 +43,8 @@ namespace PointAndClickKeyboard_v5
 
         Queue<string> PositionData, WordData, SentenceData, TextData;
 
-        JointID SelectionHand = JointID.HandRight;
-        JointID MotionHand = JointID.HandLeft;
+        JointID SelectionHand = JointID.HandLeft;
+        JointID MotionHand = JointID.HandRight;
 
         GestureTracker GestureTracker = new GestureTracker(15, 0.05f, 0.05f, 0.05f);
 
@@ -370,7 +370,7 @@ namespace PointAndClickKeyboard_v5
             JointID temporary = MotionHand;
             MotionHand = SelectionHand;
             SelectionHand = temporary;
-            if (SwitchHandsButton.Content.Equals("Switch Hand To Right"))
+            if (MotionHand == JointID.HandRight)
             {
                 SwitchHandsButton.Content = "Switch Hand to Left";
             }

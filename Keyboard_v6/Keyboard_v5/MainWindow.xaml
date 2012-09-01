@@ -1,0 +1,19 @@
+﻿<Window x:Class="Keyboard_v6.Keyboard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BubbleKeyboard" Height="670" Width="1024"  Loaded="Window_Loaded">
+    <Grid>
+        <Canvas Height="670" HorizontalAlignment="Left" Margin="0,0,0,0" Name="theCanvas" VerticalAlignment="Top" Width="1024" >
+            <Label Content="" Height="200"  Width="200" Canvas.Left ="179" Canvas.Top="215" Name="CenterBubble_Label" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="24" />
+            <Ellipse Height="200" Width="200" Canvas.Left ="179"  Canvas.Top ="215" Name="CenterBubble_Ellipse" Stroke="Black" Fill="GreenYellow" Opacity="0.5" />
+            <Button Canvas.Left="6" Canvas.Top="6" Content="Switch Hand to Left" Height="30" Name="SwitchHandsButton" Width="120" Click="SwitchHandsButton_Click" />
+            <Button Canvas.Left="154" Canvas.Top="6" Content="Enter" Height="30" Name="Enter_Button" Width="120" Click="Enter_Button_Click" />
+            <Image Height="151" HorizontalAlignment="Left" Margin="12,12,0,0" Name="Depth_Image" Stretch="Fill" VerticalAlignment="Top" Width="248" Canvas.Left="671" Canvas.Top="35" />
+            <Image Canvas.Left="683" Canvas.Top="215" Height="160" Name="VideoImage" Stretch="Fill" Width="248" />
+            <Button Canvas.Left="453" Canvas.Top="6" Content="Publish Data" Height="30" Name="Publish_Data" Width="122" Click="Publish_Data_Click" />
+            <Button Canvas.Left="300" Canvas.Top="6" Content="Turn off Sticky" Height="30" Name="Sticky" Width="121" Click="Sticky_Click" />
+            <Ellipse Canvas.Left="278" Canvas.Top="314" Height="6" Name="Pointer_Ellipse" Stroke="Black" Width="6" Fill="Black" />
+            <Button Canvas.Left="595" Canvas.Top="10" Content="Button" Height="23" Name="button1" Width="75" />
+        </Canvas>
+    </Grid>
+</Window>
